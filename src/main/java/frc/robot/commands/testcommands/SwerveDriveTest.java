@@ -1,6 +1,6 @@
 package frc.robot.commands.testcommands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.drivetrain.SwerveModule;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDriveTest extends CommandBase{
@@ -16,16 +16,12 @@ public class SwerveDriveTest extends CommandBase{
         SmartDashboard.putBoolean("Callibrate", false);
     }
     public void execute(){
-        if(SmartDashboard.getBoolean("Run Motor", true)){
+        if(SmartDashboard.getBoolean("Run Motor", false)){
             module.setSpeed(SmartDashboard.getNumber("Motor Speed", 0.2));
         }else{
             module.setSpeed(0);
         }
         module.setAngle(SmartDashboard.getNumber("Angle Set Point", 0));
-
-        if(SmartDashboard.getBoolean("Reset Motor", true)){
-            module.resetSpinMotor();
-        }
         
     }
     

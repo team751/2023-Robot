@@ -131,7 +131,10 @@ public class Robot extends TimedRobot {
     }
     
     m_testCommand = m_robotContainer.getTestCommand();
-    m_testCommand.schedule();
+    
+    if (m_teleopCommand != null) {
+      m_testCommand.schedule();
+    }
   }
 
   /** This function is called periodically during test mode. */

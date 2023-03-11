@@ -1,16 +1,23 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.drivetrain;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import java.util.function.Function;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import frc.robot.Constants;
-import frc.robot.subsystems.absencoder.AbsoluteEncoder;
+import frc.robot.subsystems.absencoder.REVThroughBoreEncoder;
 import frc.robot.subsystems.switches.ReedSwitch;
 
 public class SwerveModule extends SubsystemBase {
@@ -19,15 +26,18 @@ public class SwerveModule extends SubsystemBase {
   private final CANSparkMax driveMotor;
   private final CANSparkMax spinMotor;
   // Motor encoders
-  private final RelativeEncoder encoder;
-  private final AbsoluteEncoder absoluteEncoder;
+  private final RelativeEncoder spinEncoder;
+  private final RelativeEncoder driveEncoder;
+  private final REVThroughBoreEncoder absoluteEncoder;
   // Setpoint for absolute encoder
   private final double ENCODER_OFFSET;
   // PID controllers for rotation
   private final PIDController rotationalPidController;
 
-  // Instance variables for returning values
+  // Auto-Zero helpers
   private ReedSwitch reedSwitch;
+  private Debouncer zeroModuleDebouncer;
+  private FunctionalCommand zeroWheelsCommand;
 
   /** Creates a new SwerveDriveSubsystem. */
   public SwerveModule(int driveID, int spinID, int encoderID, double absoluteEncoderOffset, int reedSwitchPortID) {
@@ -38,13 +48,17 @@ public class SwerveModule extends SubsystemBase {
     driveMotor = new CANSparkMax(driveID, MotorType.kBrushless);
     spinMotor = new CANSparkMax(spinID, MotorType.kBrushless);
     // Init encoders
-    encoder = spinMotor.getEncoder();
+    spinEncoder = spinMotor.getEncoder();
+    driveEncoder = driveMotor.getEncoder();
     // converts encoder position (0 -> 1) to the current module angle
-    encoder.setPositionConversionFactor(2 * Math.PI / Constants.gearRatioSpin);
+    spinEncoder.setPositionConversionFactor(2 * Math.PI / Constants.gearRatioSpin);
     ENCODER_OFFSET = absoluteEncoderOffset;
-    absoluteEncoder = new AbsoluteEncoder(encoderID);
+    absoluteEncoder = new REVThroughBoreEncoder(encoderID);
     // Init reed switch
     reedSwitch = new ReedSwitch(reedSwitchPortID);
+    // init debouncer
+    zeroModuleDebouncer = new Debouncer(0.1);
+    zeroWheelsCommand = new FunctionalCommand(()->SmartDashboard.putString("CurrentMode","Zeroing"), this::resetSpinMotor, this::setRelativeEncodersToZero, this::isZeroed);
   }
 
   public SwerveModule(Constants.SwerveModuleConfig moduleConfig) {
@@ -73,7 +87,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public Rotation2d getCurrentRotation2d() {
-    return new Rotation2d(encoder.getPosition());
+    return new Rotation2d(spinEncoder.getPosition());
   }
 
   public double getCurrentAngleRadians() {
@@ -100,13 +114,19 @@ public class SwerveModule extends SubsystemBase {
     return driveMotor.getEncoder().getVelocity();
   }
 
-  public boolean resetSpinMotor() {
-    double motorSpeed = rotationalPidController.calculate(absoluteEncoder.getPositionRadians(), ENCODER_OFFSET);
+  public void spinWithoutDriving(SwerveModuleState state){
+    double angleSetpoint = state.angle.getRadians();
+    setAngle(angleSetpoint);
+  }
+
+  private void resetSpinMotor() {
+    driveMotor.set(0);
+    double motorSpeed = rotationalPidController.calculate(absoluteEncoder.getAbsolutePositionRadians(), ENCODER_OFFSET);
     double normalizedMotorSpinSpeed = (motorSpeed / Constants.spinMotorMaxSpeedMetersPerSecond)
         * Constants.gearRatioSpin;
     spinMotor.set(normalizedMotorSpinSpeed);
-    if (Math.abs(absoluteEncoder.getPositionRadians() - ENCODER_OFFSET) < 0.01) {
-      encoder.setPosition(0);
+    if (Math.abs(absoluteEncoder.getAbsolutePositionRadians() - ENCODER_OFFSET) < 0.1) {
+      spinEncoder.setPosition(0);
       // if the reed switch is not triggered (meaning the module is opposite where it
       // should be) then invert the motor's direction
       if (!reedSwitch.get()) {
@@ -114,14 +134,31 @@ public class SwerveModule extends SubsystemBase {
       } else {
         driveMotor.setInverted(false);
       }
-      return true;
     }
-    return false;
+  }
+
+  private boolean isZeroed(){
+      return zeroModuleDebouncer.calculate(Math.abs(absoluteEncoder.getAbsolutePositionRadians() - ENCODER_OFFSET) < 0.05);
+  }
+
+  private void setRelativeEncodersToZero(boolean interrupted){
+    if (!reedSwitch.get()) {
+      driveMotor.setInverted(true);
+    } else {
+      driveMotor.setInverted(false);
+    }
+  }
+
+  public FunctionalCommand getZeroCommand(){
+    return zeroWheelsCommand;
+  }
+  public boolean isZeroing(){
+    return zeroWheelsCommand.isScheduled();
   }
 
   public void debugPutValues() {
-    SmartDashboard.putNumber(this.getName() + " Absolute Encoder Angle", absoluteEncoder.getPositionRadians() * 360);
-    SmartDashboard.putNumber(this.getName() + " Relative Encoder Angle", encoder.getPosition() * 360);
+    SmartDashboard.putNumber(this.getName() + " Absolute Encoder Angle", absoluteEncoder.getAbsolutePositionRadians() * 360);
+    SmartDashboard.putNumber(this.getName() + " Relative Encoder Angle", spinEncoder.getPosition() * 360);
     SmartDashboard.putNumber(this.getName() + " Angle (Degrees)", Units.radiansToDegrees(getCurrentAngleRadians()));
     SmartDashboard.putNumber(this.getName() + " Encoder Velocity", driveMotor.getEncoder().getVelocity());
     reedSwitch.debugPutValues();
@@ -131,4 +168,10 @@ public class SwerveModule extends SubsystemBase {
     driveMotor.set(0);
     spinMotor.set(0);
   }
+
+  public double getDriveEncoderVelocity(){
+    return driveEncoder.getVelocity()*Constants.maxDriveSpeed;
+  }
+
+
 }
