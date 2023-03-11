@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -23,12 +24,17 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public final class Constants {
 
-    // Used for initializing swerve modules at startup
+/* 
+    ==========
+    DRIVETRAIN 
+    ==========
+*/
+    // Port values/offsets for swerve module initialization
     public enum SwerveModuleConfig {
-        FRONT_RIGHT(16, 17, 2, 0, 4),
-        FRONT_LEFT(10, 11, 1, 0, 5),
-        BACK_LEFT(12, 13, 0, 5.06, 6),
-        BACK_RIGHT(15, 14, 3, 0, 7);
+        FRONT_RIGHT(13, 12, 1, 0, 4),
+        FRONT_LEFT(10, 11, 2, 0, 5),
+        BACK_LEFT(14, 15, 3, 0, 6),
+        BACK_RIGHT(17, 16, 0, 0, 7);
 
         private final int driveID;
         private final int spinID;
@@ -65,32 +71,6 @@ public final class Constants {
         }
     }
 
-    public static final double reedSwitchDebounceTime = 0.1;
-    // The port on the Driver Station that the joystick is connected to.
-    public static final int driveStickPort = 0;
-    public static final int flightStickPort = 1;
-    // The Driver Station joystick used for driving the robot.
-    public static final XboxController driverController = new XboxController(Constants.driveStickPort);
-    public static final Joystick driverJoystick = new Joystick(Constants.flightStickPort);
-    public static final double chassisRotationsPerSecondMultiplier = Math.PI;
-
-    /* Gear ratio between the spin motor and wheel rotation */
-    public static final double gearRatioSpin = 26.0 + 2.0 / 3.0;
-    public static final double gearRatioDrive = 7.0 / 60; // what alex said, please don't kill me if it is wrong
-    public static final double wheelCircumference = 0.1016 * Math.PI;
-    public static final double driveMotorMaxRPM = 5676;
-    public static final double maxDriveSpeed = driveMotorMaxRPM / 60 * gearRatioDrive * wheelCircumference;
-
-    /* Motor maximum speed */
-    public static final double driveMotorMaxSpeedRatio = 5.0;
-    public static final double spinMotorMaxSpeedMetersPerSecond = 100.0;
-    public static final double anglePIDDefaultValue = 0.4;
-    public static final double anglePIDDerivativeValue = 0.01;
-    public static final double drivePIDDefaultValue = 0.6;
-    public static final double autonDistancePIDDefaultValue = 0.15;
-    public static final double autonDistancePIDDerivativeValue = 0.005;
-    public static final double autonDistancePIDIntegralValue = 0;
-
     /* Robot Width and Length Constants */
     public static final double motorLengthApartInches = 24.5625;
     public static final double motorWidthApartInches = 20.875;
@@ -111,5 +91,52 @@ public final class Constants {
             -moduleYOffsetMeters);
     public static final Translation2d backRightOffsetMeters = new Translation2d(moduleXOffsetMeters,
             -moduleYOffsetMeters);
+
+    /* Gear ratios */
+    public static final double gearRatioSpin = 26.0 + 2.0 / 3.0;
+    public static final double gearRatioDrive = 7.0 / 60; // what alex said, please don't kill me if it is wrong
+    public static final double wheelCircumference = 0.1016 * Math.PI;
+    /* Motor maximum speed */
+    public static final double driveMotorMaxRPM = 5676; 
+    public static final double maxDriveSpeed = driveMotorMaxRPM / 60 * gearRatioDrive * wheelCircumference;
+
+    public static final double driveMotorMaxSpeedRatio = 5.0; //unchecked
+    public static final double spinMotorMaxSpeedMetersPerSecond = 100.0;//unchecked
+
+  
+    public static final double anglePIDDefaultValue = 0.4;
+    public static final double anglePIDDerivativeValue = 0.01;
+    public static final double drivePIDDefaultValue = 0.6;
+
+    
+/* 
+    ========
+    SWITCHES 
+    ========
+*/
+    public static final double reedSwitchDebounceTime = 0.1;
+    public static final double zeroModulesDebounceTime = 0.2;
+/* 
+    ===========
+    CONTROLLERS
+    ===========
+*/
+    public static final int driveStickPort = 0;
+    public static final int flightStickPort = 1;
+    // The Driver Station joystick used for driving the robot.
+    public static final CommandXboxController driverController = new CommandXboxController(Constants.driveStickPort);
+    public static final Joystick driverJoystick = new Joystick(Constants.flightStickPort);
+    public static final double chassisRotationsPerSecondMultiplier = Math.PI;
+
+/* 
+    =====
+    AUTON 
+    =====
+*/
+    public static final double[] autonTargetXPose = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    public static final double[] autonTargetYPose = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    public static final double autonDistancePIDDefaultValue = 0.15;
+    public static final double autonDistancePIDIntegralValue = 0;
+    public static final double autonDistancePIDDerivativeValue = 0.005;
 
 }

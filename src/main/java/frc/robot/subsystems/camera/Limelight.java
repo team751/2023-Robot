@@ -19,22 +19,21 @@ public class Limelight extends SubsystemBase {
         target = table.getEntry("tv");
         botPos = table.getEntry("botpose");
         camPosTagSpace = table.getEntry("campose");
-        tagPosBotSpace = table.getEntry("targetpose");
+        tagPosBotSpace = table.getEntry("targetpose_cameraspace");
 
     }
 
     public double[] getValues() {
         double[] position = null;
         if (target.getDouble(0) > 0.9) {
-            // position = tagPos.getDoubleArray(new double[6]);
-            position = tagPosBotSpace.getDoubleArray(new double[6]);
+            position = botPos.getDoubleArray(new double[6]);
         }
         return position;
     }
 
     public void debugDisplayValues() {
         double[] newValues = getValues();
-        if (newValues == null || newValues.length < 3)
+        if (newValues == null || newValues.length < 6)
             return;
         SmartDashboard.putNumber("Robot X Position", newValues[0]);
         SmartDashboard.putNumber("Robot Y Position", newValues[1]);

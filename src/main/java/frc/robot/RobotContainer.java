@@ -7,12 +7,20 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.absencoder.*;
+import frc.robot.subsystems.gyro.*;
+import frc.robot.subsystems.camera.*;
+import frc.robot.subsystems.switches.ReedSwitch;
+import frc.robot.subsystems.drivetrain.*;
 import frc.robot.subsystems.camera.Limelight;
+import frc.robot.subsystems.drivetrain.SwerveDrive;
+import frc.robot.subsystems.drivetrain.SwerveModule;
 import frc.robot.subsystems.gyro.ComplementaryFilter;
 import frc.robot.commands.*;
+import frc.robot.commands.testcommands.FollowAprilTag;
 import frc.robot.commands.testcommands.SwerveDriveTest;
-import frc.robot.subsystems.gyro.NavX2;
+import frc.robot.subsystems.gyro.Odometry;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -24,20 +32,23 @@ import frc.robot.subsystems.gyro.NavX2;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // PRODUCTION COMMANDS
+  // SUBSYSTEMS
   private final SwerveModule frontLeftModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_LEFT);
   private final SwerveModule backLeftModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_LEFT);
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
+
+
+  // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
-  private final ComplementaryFilter filteredAngles = new ComplementaryFilter();
-  private final NavX2 navX2 = new NavX2();
+  private final Odometry navX2 = Odometry.getInstance();
 
   private final SwerveDrive swerve = new SwerveDrive(
       frontLeftModule, frontRightModule, backLeftModule, backRightModule);
+  private final AutoLevel autoLevel = new AutoLevel(navX2, swerve);
+  private final Drive drive = new Drive(swerve, limelight, navX2);
 
-  private final SwerveDriveCommand m_teleopCommand = new SwerveDriveCommand(swerve, limelight, filteredAngles, navX2);
-  private final FollowAprilTag autonCommand = new FollowAprilTag(swerve, limelight, filteredAngles, navX2);
+  private final FollowAprilTag m_autonCommand = new FollowAprilTag(swerve, limelight, navX2);
 
   //TESTING COMMANDS
   private final SwerveDriveTest m_testCommand = new SwerveDriveTest(backRightModule);
@@ -58,6 +69,8 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    Constants.driverController.a().toggleOnTrue(autoLevel.unless(() -> autoLevel.isScheduled()));
+    Constants.driverController.b().onTrue(Commands.runOnce(swerve::zeroModules).unless(autoLevel::isScheduled));
   }
 
   /**
@@ -66,13 +79,13 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An FollowAprilTag will run in autonomous
-    return autonCommand;
+    // A FollowAprilTag will run in autonomous
+    return m_autonCommand;
   }
 
   public Command getTeleopCommand() {
-    // An SwerveDriveCommand will run in autonomous
-    return m_teleopCommand;
+    // A Drive will run in teleop
+    return drive;
   }
 
   public Command getTestCommand() {
