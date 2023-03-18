@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.kauailabs.navx.frc.AHRS;
 
+
+//TODO: account for new position on the robot
 public class Odometry {
     private static Odometry instance;
 

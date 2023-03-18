@@ -7,6 +7,7 @@ import frc.robot.subsystems.gyro.Odometry;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Drive extends CommandBase {
     // Swerb controller
@@ -65,11 +66,13 @@ public class Drive extends CommandBase {
         // I do not know why this works. I wish it didn't
         // However, we added this random smart dashboard update now
         // the command doesn't automatically cancel itself
-        SmartDashboard.putString("Current Mode", "AAAAAAAAAAAAAAAA");
+        // SmartDashboard.putString("Current Mode", "AAAAAAAAAAAAAAAA");
+
         // Get joystick values
         FilteredValues filteredDriveSpeeds = getFilteredValues();
         // Drive via stick values
         swerveSubsystem.drive(filteredDriveSpeeds.vy, filteredDriveSpeeds.vx, filteredDriveSpeeds.rps,false);
+        swerveSubsystem.debugPutEncoderValues();
     }
 
     public FilteredValues getFilteredValues(){
@@ -93,7 +96,8 @@ public class Drive extends CommandBase {
         }
         fv.vx = vxFLimiter.calculate(fv.vx) * Constants.maxDriveSpeed;
         fv.vy = vyFLimiter.calculate(fv.vy) * Constants.maxDriveSpeed;
-        fv.rps = fv.rps * Constants.chassisRotationsPerSecondMultiplier;
+        fv.rps = 0;
+        //fv.rps *= Constants.chassisRotationsPerSecondMultiplier;
         
         return fv;
     }

@@ -6,6 +6,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+
+
 public class AutoLevel extends CommandBase{
     private Odometry navX2;
     private SwerveDrive swerveDrive;
@@ -26,10 +28,10 @@ public class AutoLevel extends CommandBase{
         xSpeed = 0;
         //ySpeed = 0;
     }
+    
     @Override 
     public void initialize(){
         SmartDashboard.putString("Current Mode","Auto-Level");
-
     }
 
     @Override

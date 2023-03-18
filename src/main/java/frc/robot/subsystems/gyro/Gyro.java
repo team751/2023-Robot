@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // Wrapper for the LSM9DS1 gyroscope, gets values from the registers via I2C
+@Deprecated
 public class Gyro extends SubsystemBase {
     private final int LSM9DS1_ADDRESS = 0x6b;
 

@@ -3,6 +3,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.SwerveModule;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+@Deprecated
 public class SwerveDriveTest extends CommandBase{
 
     private final SwerveModule module;

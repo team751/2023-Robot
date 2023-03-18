@@ -9,15 +9,15 @@ public class REVThroughBoreEncoder extends SubsystemBase {
     // PWM port
     private final DutyCycleEncoder absEncoder;
 
-    public REVThroughBoreEncoder(int PWMport) {
-        absEncoder = new DutyCycleEncoder(PWMport);
+    public REVThroughBoreEncoder(int DIOport) {
+        absEncoder = new DutyCycleEncoder(DIOport);
         //Through-bore encoder in duty cycle mode = 1024 U/rev
         absEncoder.setDutyCycleRange(0, 1024);
         absEncoder.reset();
     }
 
-    public REVThroughBoreEncoder(int PWMport, String moduleName){
-        this(PWMport);
+    public REVThroughBoreEncoder(int DIOport, String moduleName){
+        this(DIOport);
         this.setName(moduleName);
     }
 

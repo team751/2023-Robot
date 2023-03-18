@@ -30,24 +30,31 @@ public final class Constants {
     ==========
 */
     // Port values/offsets for swerve module initialization
+    //TODO: Find correct encoder offsets
     public enum SwerveModuleConfig {
-        FRONT_RIGHT(13, 12, 1, 0, 4),
-        FRONT_LEFT(10, 11, 2, 0, 5),
-        BACK_LEFT(14, 15, 3, 0, 6),
-        BACK_RIGHT(17, 16, 0, 0, 7);
+        FRONT_RIGHT(12, 13, 1, 3.237,0.6264488101, 8),
+        FRONT_LEFT(15, 14, 3, 3.132,2.6927967072, 9),
+        BACK_LEFT(16, 17, 2, 0.8400,3.337953091, 6),
+        BACK_RIGHT(11, 10, 0, 3.874,-0.392699241, 7);
 
         private final int driveID;
         private final int spinID;
         private final int encoderID;
-        private final double encoderOffset;
+        private final double absoluteEncoderOffset;
+        private final double relativeEncoderOffset;
         private final int reedSwitchID;
 
-        SwerveModuleConfig(int driveID, int spinID, int encoderID, double encoderOffset, int reedSwitchID) {
+        SwerveModuleConfig(int driveID, int spinID, int encoderID, double absoluteEncoderOffset, int reedSwitchID) {
+            this(driveID, spinID, encoderID, absoluteEncoderOffset, 0, reedSwitchID);
+        }
+
+        SwerveModuleConfig(int driveID, int spinID, int encoderID, double absoluteEncoderOffset, double relativeEncoderOffset, int reedSwitchID) {
             this.driveID = driveID;
             this.spinID = spinID;
             this.encoderID = encoderID;
-            this.encoderOffset = encoderOffset;
+            this.absoluteEncoderOffset = absoluteEncoderOffset;
             this.reedSwitchID = reedSwitchID;
+            this.relativeEncoderOffset = relativeEncoderOffset;
         }
 
         public int getDriveID() {
@@ -62,8 +69,17 @@ public final class Constants {
             return encoderID;
         }
 
+        @Deprecated
         public double getEncoderOffset() {
-            return encoderOffset;
+            return absoluteEncoderOffset;
+        }
+
+        public double getAbosoluteEncoderOffset() {
+            return absoluteEncoderOffset;
+        }
+
+        public double getRelativeEncoderOffset() {
+            return relativeEncoderOffset;
         }
 
         public int getReedSwitchID() {
@@ -72,41 +88,57 @@ public final class Constants {
     }
 
     /* Robot Width and Length Constants */
-    public static final double motorLengthApartInches = 24.5625;
-    public static final double motorWidthApartInches = 20.875;
+    public static final double motorLengthApartInches = 23.375;
+    public static final double motorWidthApartInches = 23.0;
 
     /* Offset calculations */
-    public static final double moduleXOffsetMeters = Units.inchesToMeters(motorWidthApartInches / 2);
-    public static final double moduleYOffsetMeters = Units.inchesToMeters(motorLengthApartInches / 2);
-
+    public static final double moduleXOffsetMeters = Units.inchesToMeters(motorLengthApartInches / 2);
+    public static final double moduleYOffsetMeters = Units.inchesToMeters(motorWidthApartInches / 2);
+/*
+*              FRONT
+*              (+x)
+*               |
+*               |
+ * LEFT(-y)------------(+y)RIGHT
+*               |
+*               |
+*              (-x)
+*              BACK
+ */
     /* Origin */
     public static final Translation2d origin = new Translation2d(0, 0);
 
     /* Motor offsets */
     public static final Translation2d frontRightOffsetMeters = new Translation2d(moduleXOffsetMeters,
             moduleYOffsetMeters);
-    public static final Translation2d frontLeftOffsetMeters = new Translation2d(-moduleXOffsetMeters,
-            moduleYOffsetMeters);
+    public static final Translation2d frontLeftOffsetMeters = new Translation2d(moduleXOffsetMeters,
+            -moduleYOffsetMeters);
     public static final Translation2d backLeftOffsetMeters = new Translation2d(-moduleXOffsetMeters,
             -moduleYOffsetMeters);
-    public static final Translation2d backRightOffsetMeters = new Translation2d(moduleXOffsetMeters,
-            -moduleYOffsetMeters);
+    public static final Translation2d backRightOffsetMeters = new Translation2d(-moduleXOffsetMeters,
+            moduleYOffsetMeters);
 
     /* Gear ratios */
-    public static final double gearRatioSpin = 26.0 + 2.0 / 3.0;
-    public static final double gearRatioDrive = 7.0 / 60; // what alex said, please don't kill me if it is wrong
+    public static final double gearRatioSpin = 16.0;
+    public static final double gearRatioDrive = 90.0/14.0; 
     public static final double wheelCircumference = 0.1016 * Math.PI;
+
+    /* Wheely Arm Gear Ratios */
+    public static final double gearRatioWheelyArmUpper = 1.0/1.0; //unchecked
+    public static final double gearRatioWheelyArmLower = 1.0/1.0; //unchecked
+
     /* Motor maximum speed */
     public static final double driveMotorMaxRPM = 5676; 
-    public static final double maxDriveSpeed = driveMotorMaxRPM / 60 * gearRatioDrive * wheelCircumference;
+    public static final double maxDriveSpeed = driveMotorMaxRPM / 60 / gearRatioDrive * wheelCircumference;
 
-    public static final double driveMotorMaxSpeedRatio = 5.0; //unchecked
-    public static final double spinMotorMaxSpeedMetersPerSecond = 100.0;//unchecked
-
+    public static final double driveMotorMaxSpeedRatio = 5.0; //unchecked (but very close)
+    public static final double spinMotorMaxSpeedMetersPerSecond = 100.0;//unchecked (but also pretty close)
   
-    public static final double anglePIDDefaultValue = 0.4;
+    public static final double anglePIDDefaultValue = 0.55;
     public static final double anglePIDDerivativeValue = 0.01;
     public static final double drivePIDDefaultValue = 0.6;
+
+    
 
     
 /* 
@@ -132,7 +164,7 @@ public final class Constants {
     =====
     AUTON 
     =====
-*/
+*/  public static final double pastBias = 0.5;
     public static final double[] autonTargetXPose = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     public static final double[] autonTargetYPose = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     public static final double autonDistancePIDDefaultValue = 0.15;

@@ -6,6 +6,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch Main",
+      "request": "launch",
+      "mainClass": "frc.robot.Main",
+      "projectName": "Swerve-2023"
+    },
+    {
+      "type": "java",
+      "name": "Launch Test",
+      "request": "launch",
+      "mainClass": "frc.robot.Test",
+      "projectName": "Swerve-2023"
+    },
+    {
+      "type": "java",
       "name": "Launch TestDrive",
       "request": "launch",
       "mainClass": "frc.robot.commands.TestDrive",

@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 
 // Uses multiple inputs from the gyroscope to make the values more accurate
+@Deprecated
 public class ComplementaryFilter extends SubsystemBase {
     private Gyro sensor;
     private double[] anglePrevious;

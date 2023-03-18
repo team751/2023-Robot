@@ -1,8 +1,13 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.camera.Limelight;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
 import frc.robot.Constants;
@@ -20,11 +25,8 @@ public class Autonomous extends CommandBase {
   private double[] robotXTargets;
   private double[] robotYTargets;
   private int targetNumber;
-  private double robotXPoseFieldSpace;
-  private double robotYPoseFieldSpace;
-  private double robotXVelocityFieldSpace;
-  private double robotYVelocityFieldSpace;
-  private double robotXRotation;
+  private double[] robotXStatesFieldSpace;
+  private double[] robotYStatesFieldSpace;
   private double robotRotation;
   private double fieldSpaceXActiveVelocity;
   private double fieldSpaceYActiveVelocity;
@@ -43,6 +45,23 @@ public class Autonomous extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
+  public class PVA {
+    public double p;
+    public double v;
+    public double a;
+    public double position;
+    public double velocity;
+    public double acceleration;
+    public PVA(double p, double v, double a) {
+      this.p = p;
+      this.v = v;
+      this.a = a;
+      this.position = p;
+      this.velocity = v;
+      this.acceleration = a;
+    }
+  }
+
   public Autonomous(SwerveDrive subsystem, Limelight limelight, Odometry navX2) {
     this.limelight = limelight;
     this.navX2 = navX2;
@@ -59,6 +78,9 @@ public class Autonomous extends CommandBase {
     olderTime = 0;
     robotXTargets = Constants.autonTargetXPose;
     robotYTargets = Constants.autonTargetYPose;
+    robotXStatesFieldSpace = new double[]{0,0,0}; // to simplify the 3 states for each axis, his array contains the acceleration, velocity and displacement of the robot in the x axis
+    robotYStatesFieldSpace = new double[]{0,0,0};
+
     distanceController = new PIDController(Constants.autonDistancePIDDefaultValue,
             Constants.autonDistancePIDIntegralValue, Constants.autonDistancePIDDerivativeValue);
 }
@@ -69,30 +91,50 @@ public class Autonomous extends CommandBase {
     
   }
 
+  // past velocity and past acceleration can not be calculated with the sensor data as that removes the filtering so it must be identified from the previous iteration
+  private double linearInterpolation(double pastDisplacement, double pastVelocity, double pastAcc, double sensorDisplacement) {
+    double predictedDisplacement = pastDisplacement + pastVelocity * deltaTime+ 0.5 * pastAcc * deltaTime * deltaTime;
+    return predictedDisplacement*(1-Constants.pastBias)+Constants.pastBias*sensorDisplacement;
+  }
+
+  private double[] updateInterpolation(double[] initialStates, double sensorData){
+    double[] finalStates = new double[3];
+    finalStates[2] = linearInterpolation(initialStates[2], initialStates[1], initialStates[0], sensorData);
+    finalStates[1] = (finalStates[2]-initialStates[2])/deltaTime;
+    finalStates[0] = (finalStates[1]-initialStates[1])/deltaTime;
+    return finalStates;
+  }
+
+
+
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
+  @Deprecated
   public void execute() {
     deltaTime = (System.currentTimeMillis() - olderTime) / 1000;
     olderTime = System.currentTimeMillis();
     navX2.debugPutValues();
     limelight.debugDisplayValues();
-    double[] values = limelight.getValues();
+    double[] values = limelight.getValuesAsArray();
     if (values != null && values.length >= 3) {
-        robotXPoseFieldSpace = values[0];
-        robotYPoseFieldSpace = values[1];
-        robotXRotation = values[3];
+        robotXStatesFieldSpace[2] = values[0];
+        robotYStatesFieldSpace[2] = values[1];
         robotRotation = values[4];
     } else {
-        robotXPoseFieldSpace = robotXTargets[targetNumber];
-        robotYPoseFieldSpace = robotYTargets[targetNumber];
+        robotXStatesFieldSpace[2] = robotXTargets[targetNumber];
+        robotYStatesFieldSpace[2] = robotYTargets[targetNumber];
+        robotRotation = 0;
     }
+    
+
     // if robot is close to the target go to the next target
-    if(Math.abs(robotXPoseFieldSpace - robotXTargets[targetNumber]) < 0.1 && Math.abs(robotYPoseFieldSpace - robotYTargets[targetNumber]) < 0.1) {
+    if(Math.abs(robotXStatesFieldSpace[2] - robotXTargets[targetNumber]) < 0.1 && Math.abs(robotYStatesFieldSpace[2] - robotYTargets[targetNumber]) < 0.1) {
         targetNumber+=1;
     }
     //field space robot velocity
-    fieldSpaceXActiveVelocity = distanceController.calculate(robotXPoseFieldSpace, robotXTargets[targetNumber]) * Constants.maxDriveSpeed / 2;
-    fieldSpaceYActiveVelocity = distanceController.calculate(robotYPoseFieldSpace, robotYTargets[targetNumber]) * Constants.maxDriveSpeed / 2;
+    fieldSpaceXActiveVelocity = distanceController.calculate(robotXStatesFieldSpace[2], robotXTargets[targetNumber]) * Constants.maxDriveSpeed / 2;
+    fieldSpaceYActiveVelocity = distanceController.calculate(robotXStatesFieldSpace[2], robotYTargets[targetNumber]) * Constants.maxDriveSpeed / 2;
     //robot space robot velocity please DO NOT use the one in drive, as it only works if the gyro is aligned with field directions
     vx = fieldSpaceXActiveVelocity * Math.cos(Units.degreesToRadians(robotRotation)) + fieldSpaceYActiveVelocity * Math.sin(Units.degreesToRadians(robotRotation));
     vy = fieldSpaceXActiveVelocity * Math.sin(Units.degreesToRadians(robotRotation)) + fieldSpaceYActiveVelocity * Math.cos(Units.degreesToRadians(robotRotation));

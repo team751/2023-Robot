@@ -64,41 +64,58 @@ public class SwerveDrive extends SubsystemBase {
 
         // stops modules from resetting their position if the joystick is not being used
         if (Math.sqrt(vx * vx + vy * vy) < 0.05 && Math.abs(rotationRadiansPerSecond) < 0.05) {
-            stop();
+            this.stop();
             return;
         }
 
         // Override to enable all motors at once on SmartDashboard, on by default
         boolean disableAllMotors = SmartDashboard.getBoolean("Disable All Motors", false);
-        /* Set swerve module speeds and rotations, also put them to smartdashboard */
-        if (SmartDashboard.getBoolean("Front Right Motor", true) && !disableAllMotors) {
-            // Actual Driving
-             if(!spinWithoutDriving) {
-                frontRight.drive(frontRightState);
-            } else {
-                frontRight.spinWithoutDriving(frontRightState);
-            }
+        if(disableAllMotors){
+            this.stop();
+            return;
         }
-        if (SmartDashboard.getBoolean("Front Left Motor", true) && !disableAllMotors) {
+
+        /* Set swerve module speeds and rotations, also put them to smartdashboard */
+        if (moduleEnabled("Front Right")) {
+            // Actual Driving
+            if(!spinWithoutDriving) frontRight.drive(frontRightState);
+            else frontRight.spinWithoutDriving(frontRightState);
+        }
+        if (moduleEnabled("Front Left")) {
             if(!spinWithoutDriving) {
                 frontLeft.drive(frontLeftState);
             } else {
                 frontLeft.spinWithoutDriving(frontLeftState);
             }
         }
-        if (SmartDashboard.getBoolean("Back Right Motor", true) && !disableAllMotors) {
+        if (moduleEnabled("Back Right")) {
             if(!spinWithoutDriving) {
                 backRight.drive(backRightState);
             } else {
                 backRight.spinWithoutDriving(backRightState);
             }
         }
-        if (SmartDashboard.getBoolean("Back Left Motor", true) && !disableAllMotors) {
+        if (moduleEnabled("Back Left")) {
             if(!spinWithoutDriving) {
                 backLeft.drive(backLeftState);
             } else {
                 backLeft.spinWithoutDriving(backLeftState);
             }
+        }
+    }
+
+    private boolean moduleEnabled(String moduleName){
+        switch(moduleName){
+            case "Front Left":
+                return SmartDashboard.getBoolean("Front Left Motor", true);
+            case "Front Right":
+                return SmartDashboard.getBoolean("Front Right Motor", true);
+            case "Back Left":
+                return SmartDashboard.getBoolean("Back Left Motor", true);
+            case "Back Right":
+                return SmartDashboard.getBoolean("Back Right Motor", true);
+            default:
+                return false;
         }
     }
 
@@ -130,6 +147,13 @@ public class SwerveDrive extends SubsystemBase {
         backLeft.stop();
         backRight.stop();
     } 
+
+    public void debugPutEncoderValues(){
+        frontLeft.debugPutValues();
+        frontRight.debugPutValues();
+        backLeft.debugPutValues();
+        backRight.debugPutValues();
+    }
 
     public ChassisSpeeds robotPosEncoder(){
         SwerveModuleState frontLeftEncoderState = new SwerveModuleState(frontLeft.getDriveEncoderVelocity(), frontLeft.getCurrentRotation2d());

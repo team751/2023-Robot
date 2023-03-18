@@ -37,6 +37,8 @@ public class FollowAprilTag extends CommandBase {
      *
      * @param subsystem The subsystem used by this command.
      */
+
+    @Deprecated
     public FollowAprilTag(SwerveDrive subsystem, Limelight limelight, Odometry navX2) {
         rylimiter = new SlewRateLimiter(4);
         yRotation = 0;
@@ -71,7 +73,7 @@ public class FollowAprilTag extends CommandBase {
         olderTime = System.currentTimeMillis();
         navX2.debugPutValues();
         limelight.debugDisplayValues();
-        double[] values = limelight.getValues();
+        double[] values = limelight.getValuesAsArray();
         if (values != null && values.length >= 3) {
             robotXPos = values[2];
             robotYPos = values[0];

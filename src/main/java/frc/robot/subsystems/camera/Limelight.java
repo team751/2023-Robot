@@ -14,6 +14,16 @@ public class Limelight extends SubsystemBase {
     private final NetworkTableEntry camPosTagSpace;
     private final NetworkTableEntry tagPosBotSpace;
 
+    public class LimelightValues {
+        public double x;
+        public double y;
+        public double z;
+        public double xRot;
+        public double yRot;
+        public double zRot;
+    }
+
+
     public Limelight() { 
         table = NetworkTableInstance.getDefault().getTable("limelight");
         target = table.getEntry("tv");
@@ -23,7 +33,7 @@ public class Limelight extends SubsystemBase {
 
     }
 
-    public double[] getValues() {
+    public double[] getValuesAsArray() {
         double[] position = null;
         if (target.getDouble(0) > 0.9) {
             position = botPos.getDoubleArray(new double[6]);
@@ -31,8 +41,23 @@ public class Limelight extends SubsystemBase {
         return position;
     }
 
+    public LimelightValues getValues(){
+        LimelightValues values = new LimelightValues();
+        double[] position = getValuesAsArray();
+        if(position != null){
+            values.x = position[0];
+            values.y = position[1];
+            values.z = position[2];
+            values.xRot = position[3];
+            values.yRot = position[4];
+            values.zRot = position[5];
+        }
+        return values;
+    }
+
+
     public void debugDisplayValues() {
-        double[] newValues = getValues();
+        double[] newValues = getValuesAsArray();
         if (newValues == null || newValues.length < 6)
             return;
         SmartDashboard.putNumber("Robot X Position", newValues[0]);

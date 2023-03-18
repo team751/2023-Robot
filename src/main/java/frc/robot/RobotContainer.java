@@ -12,6 +12,7 @@ import frc.robot.subsystems.absencoder.*;
 import frc.robot.subsystems.gyro.*;
 import frc.robot.subsystems.camera.*;
 import frc.robot.subsystems.switches.ReedSwitch;
+import frc.robot.subsystems.thebelt.TheBelt;
 import frc.robot.subsystems.drivetrain.*;
 import frc.robot.subsystems.camera.Limelight;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
@@ -37,14 +38,17 @@ public class RobotContainer {
   private final SwerveModule backLeftModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_LEFT);
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
-
+  private final TheBelt theBelt = new TheBelt(5);//TODO: PUT IN CONSTANTS
 
   // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
   private final Odometry navX2 = Odometry.getInstance();
 
   private final SwerveDrive swerve = new SwerveDrive(
-      frontLeftModule, frontRightModule, backLeftModule, backRightModule);
+      frontLeftModule, 
+      frontRightModule, 
+      backLeftModule, 
+      backRightModule);
   private final AutoLevel autoLevel = new AutoLevel(navX2, swerve);
   private final Drive drive = new Drive(swerve, limelight, navX2);
 
@@ -69,7 +73,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    Constants.driverController.a().toggleOnTrue(autoLevel.unless(() -> autoLevel.isScheduled()));
+    Constants.driverController.a().toggleOnTrue(autoLevel.unless(() -> swerve.isZeroing()));
     Constants.driverController.b().onTrue(Commands.runOnce(swerve::zeroModules).unless(autoLevel::isScheduled));
   }
 
