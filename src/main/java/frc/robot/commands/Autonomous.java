@@ -129,7 +129,7 @@ public class Autonomous extends CommandBase {
     
 
     // if robot is close to the target go to the next target
-    if(Math.abs(robotXStatesFieldSpace[2] - robotXTargets[targetNumber]) < 0.1 && Math.abs(robotYStatesFieldSpace[2] - robotYTargets[targetNumber]) < 0.1) {
+    if(Math.abs(robotXStatesFieldSpace[2] - robotXTargets[targetNumber]) < 0.1 && Math.abs(robotYStatesFieldSpace[2] - robotYTargets[targetNumber]) < 0.1 && targetNumber < robotXTargets.length - 1) {
         targetNumber+=1;
     }
     //field space robot velocity

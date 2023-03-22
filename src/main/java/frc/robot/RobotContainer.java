@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.fasterxml.jackson.databind.introspect.WithMember;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +15,7 @@ import frc.robot.subsystems.gyro.*;
 import frc.robot.subsystems.camera.*;
 import frc.robot.subsystems.switches.ReedSwitch;
 import frc.robot.subsystems.thebelt.TheBelt;
+import frc.robot.subsystems.wheelyarm.WheelyArm;
 import frc.robot.subsystems.drivetrain.*;
 import frc.robot.subsystems.camera.Limelight;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
@@ -38,7 +41,8 @@ public class RobotContainer {
   private final SwerveModule backLeftModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_LEFT);
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
-  private final TheBelt theBelt = new TheBelt(5);//TODO: PUT IN CONSTANTS
+  private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);//TODO: PUT IN CONSTANTS
+  private final WheelyArm wheelyArm = new WheelyArm(6,7);
 
   // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
@@ -75,6 +79,11 @@ public class RobotContainer {
   private void configureButtonBindings() {
     Constants.driverController.a().toggleOnTrue(autoLevel.unless(() -> swerve.isZeroing()));
     Constants.driverController.b().onTrue(Commands.runOnce(swerve::zeroModules).unless(autoLevel::isScheduled));
+    // Untested
+    Constants.driverController.x().toggleOnTrue(Commands.run(() -> theBelt.run(0.5)));
+    Constants.driverController.y().toggleOnTrue(Commands.run(() -> theBelt.run(-0.5)));
+    Constants.driverController.leftBumper().toggleOnTrue(Commands.run(() -> wheelyArm.run(0.5)));
+    Constants.driverController.rightBumper().toggleOnTrue(Commands.run(() -> wheelyArm.run(-0.5)));
   }
 
   /**

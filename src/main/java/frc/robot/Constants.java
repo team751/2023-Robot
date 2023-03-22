@@ -31,11 +31,12 @@ public final class Constants {
 */
     // Port values/offsets for swerve module initialization
     //TODO: Find correct encoder offsets
+    private static final double halfpi = Math.PI/2;
     public enum SwerveModuleConfig {
-        FRONT_RIGHT(12, 13, 1, 3.237,0.6264488101, 8),
-        FRONT_LEFT(15, 14, 3, 3.132,2.6927967072, 9),
-        BACK_LEFT(16, 17, 2, 0.8400,3.337953091, 6),
-        BACK_RIGHT(11, 10, 0, 3.874,-0.392699241, 7);
+        FRONT_RIGHT(12, 13, 1, 3.237 ,0.6264488101 + halfpi, 8),
+        FRONT_LEFT(15, 14, 3, 3.132 ,2.6927967072 + halfpi, 9),
+        BACK_LEFT(16, 17, 2, 0.8400 ,3.337953091 + halfpi, 6),
+        BACK_RIGHT(11, 10, 0, 3.874,-0.392699241 + halfpi, 7);
 
         private final int driveID;
         private final int spinID;
@@ -138,8 +139,23 @@ public final class Constants {
     public static final double anglePIDDerivativeValue = 0.01;
     public static final double drivePIDDefaultValue = 0.6;
 
-    
+/* 
+    ========
+    BELT CONSTANTS 
+    ========
+*/
+    public static final int beltMotorPort = 5;
+    public static final int beltFanPort1 = 0;
+    public static final int beltFanPort2 = 1;
+    public static final double fanSpeed = 0.1;
 
+/* 
+    ========
+    WHEELY ARM CONSTANTS 
+    ========
+*/
+    public static final int wheelyArmUpperMotorPort = 7;
+    public static final int wheelyArmLowerMotorPort = 6;
     
 /* 
     ========

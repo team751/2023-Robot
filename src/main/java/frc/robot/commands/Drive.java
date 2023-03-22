@@ -17,6 +17,7 @@ public class Drive extends CommandBase {
     // Joystick Limiters & Values
     private final SlewRateLimiter vxFLimiter;
     private final SlewRateLimiter vyFLimiter;
+    private final SlewRateLimiter rpsFLimiter;
     // Gyroscope
     private Odometry navX2;
 
@@ -44,6 +45,7 @@ public class Drive extends CommandBase {
 
         vxFLimiter = new SlewRateLimiter(4);
         vyFLimiter = new SlewRateLimiter(4);
+        rpsFLimiter = new SlewRateLimiter(4);
         
         
         SmartDashboard.putNumber("Left Stick Angle (Radians)", 0);
@@ -71,7 +73,7 @@ public class Drive extends CommandBase {
         // Get joystick values
         FilteredValues filteredDriveSpeeds = getFilteredValues();
         // Drive via stick values
-        swerveSubsystem.drive(filteredDriveSpeeds.vy, filteredDriveSpeeds.vx, filteredDriveSpeeds.rps,false);
+        swerveSubsystem.drive(-filteredDriveSpeeds.vx, filteredDriveSpeeds.vy, filteredDriveSpeeds.rps,false);
         swerveSubsystem.debugPutEncoderValues();
     }
 
@@ -94,10 +96,12 @@ public class Drive extends CommandBase {
             fv.vx = 0;
             fv.vy = 0;
         }
+
         fv.vx = vxFLimiter.calculate(fv.vx) * Constants.maxDriveSpeed;
         fv.vy = vyFLimiter.calculate(fv.vy) * Constants.maxDriveSpeed;
-        fv.rps = 0;
-        //fv.rps *= Constants.chassisRotationsPerSecondMultiplier;
+        //Comment in to disable rotation
+        //fv.rps = 0;
+        fv.rps = rpsFLimiter.calculate(fv.rps) * Constants.chassisRotationsPerSecondMultiplier;
         
         return fv;
     }

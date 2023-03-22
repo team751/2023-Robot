@@ -3,7 +3,6 @@ package frc.robot.subsystems.wheelyarm;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 public class WheelyArm extends SubsystemBase {
     /** Creates a new WheelyArm. */
@@ -24,10 +23,8 @@ public class WheelyArm extends SubsystemBase {
     }
 
     public void run(double speed){
-        double upperMotorSpeed = speed * Constants.gearRatioWheelyArmUpper;
-        double lowerMotorSpeed = speed * Constants.gearRatioWheelyArmLower;
-        setUpperMotor(upperMotorSpeed);
-        setLowerMotor(lowerMotorSpeed);
+        setUpperMotor(speed);
+        setLowerMotor(-speed);
     }
 
     @Override
