@@ -25,6 +25,7 @@ import frc.robot.commands.*;
 import frc.robot.commands.testcommands.FollowAprilTag;
 import frc.robot.commands.testcommands.SwerveDriveTest;
 import frc.robot.subsystems.gyro.Odometry;
+import frc.robot.commands.TheBeltCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -42,7 +43,7 @@ public class RobotContainer {
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
   private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);//TODO: PUT IN CONSTANTS
-  private final WheelyArm wheelyArm = new WheelyArm(6,7);
+ // private final WheelyArm wheelyArm = new WheelyArm(6,7);
 
   // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
@@ -55,8 +56,10 @@ public class RobotContainer {
       backRightModule);
   private final AutoLevel autoLevel = new AutoLevel(navX2, swerve);
   private final Drive drive = new Drive(swerve, limelight, navX2);
+  private final TheBeltCommand beltCommand = new TheBeltCommand(theBelt);
+  //private final WheelyArmCommand wheelyArmCommand = new WheelyArmCommand(wheelyArm);
 
-  private final FollowAprilTag m_autonCommand = new FollowAprilTag(swerve, limelight, navX2);
+  private final AutonSimple m_autonCommand = new AutonSimple(swerve,beltCommand);
 
   //TESTING COMMANDS
   private final SwerveDriveTest m_testCommand = new SwerveDriveTest(backRightModule);
@@ -79,11 +82,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
     Constants.driverController.a().toggleOnTrue(autoLevel.unless(() -> swerve.isZeroing()));
     Constants.driverController.b().onTrue(Commands.runOnce(swerve::zeroModules).unless(autoLevel::isScheduled));
-    // Untested
-    Constants.driverController.x().toggleOnTrue(Commands.run(() -> theBelt.run(0.5)));
-    Constants.driverController.y().toggleOnTrue(Commands.run(() -> theBelt.run(-0.5)));
-    Constants.driverController.leftBumper().toggleOnTrue(Commands.run(() -> wheelyArm.run(0.5)));
-    Constants.driverController.rightBumper().toggleOnTrue(Commands.run(() -> wheelyArm.run(-0.5)));
+    Constants.driverController.x().whileTrue(beltCommand);
+   // Constants.driverController.y().whileTrue(wheelyArmCommand);
   }
 
   /**

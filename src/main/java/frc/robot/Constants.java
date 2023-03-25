@@ -33,10 +33,11 @@ public final class Constants {
     //TODO: Find correct encoder offsets
     private static final double halfpi = Math.PI/2;
     public enum SwerveModuleConfig {
-        FRONT_RIGHT(12, 13, 1, 3.237 ,0.6264488101 + halfpi, 8),
-        FRONT_LEFT(15, 14, 3, 3.132 ,2.6927967072 + halfpi, 9),
-        BACK_LEFT(16, 17, 2, 0.8400 ,3.337953091 + halfpi, 6),
-        BACK_RIGHT(11, 10, 0, 3.874,-0.392699241 + halfpi, 7);
+        // redo relative
+        FRONT_RIGHT(12, 13, 1, 3.106, 0.6264488101 + halfpi, 5),
+        FRONT_LEFT(15, 14, 3, 3.132, 2.6927967072 + halfpi, 6),
+        BACK_LEFT(16, 17, 2, 0.8400, 3.337953091 + halfpi, 7),
+        BACK_RIGHT(11, 10, 0, 3.874, -0.392699241 + halfpi, 4);
 
         private final int driveID;
         private final int spinID;
@@ -112,12 +113,12 @@ public final class Constants {
     /* Motor offsets */
     public static final Translation2d frontRightOffsetMeters = new Translation2d(moduleXOffsetMeters,
             moduleYOffsetMeters);
-    public static final Translation2d frontLeftOffsetMeters = new Translation2d(moduleXOffsetMeters,
-            -moduleYOffsetMeters);
+    public static final Translation2d frontLeftOffsetMeters = new Translation2d(-moduleXOffsetMeters,
+            moduleYOffsetMeters);
     public static final Translation2d backLeftOffsetMeters = new Translation2d(-moduleXOffsetMeters,
             -moduleYOffsetMeters);
-    public static final Translation2d backRightOffsetMeters = new Translation2d(-moduleXOffsetMeters,
-            moduleYOffsetMeters);
+    public static final Translation2d backRightOffsetMeters = new Translation2d(moduleXOffsetMeters,
+            -moduleYOffsetMeters);
 
     /* Gear ratios */
     public static final double gearRatioSpin = 16.0;
@@ -154,8 +155,8 @@ public final class Constants {
     WHEELY ARM CONSTANTS 
     ========
 */
-    public static final int wheelyArmUpperMotorPort = 7;
-    public static final int wheelyArmLowerMotorPort = 6;
+    public static final int wheelyArmUpperMotorPort = 6;
+    public static final int wheelyArmLowerMotorPort = 5;
     
 /* 
     ========
@@ -163,7 +164,7 @@ public final class Constants {
     ========
 */
     public static final double reedSwitchDebounceTime = 0.1;
-    public static final double zeroModulesDebounceTime = 0.2;
+    public static final double zeroModulesDebounceTime = 0.5;
 /* 
     ===========
     CONTROLLERS

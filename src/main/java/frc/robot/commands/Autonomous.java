@@ -23,9 +23,9 @@ public class Autonomous extends CommandBase {
   //private ComplementaryFilter filteredAngles;
   private final Limelight limelight;
   private double[] robotXTargets;
-  private double[] robotYTargets;
+  private double[] robotYTargets;//arrays with points that the robot goes to, once it arrives, it moves on to the next point on the array
   private int targetNumber;
-  private double[] robotXStatesFieldSpace;
+  private double[] robotXStatesFieldSpace;// acceleration, velocity, distance
   private double[] robotYStatesFieldSpace;
   private double robotRotation;
   private double fieldSpaceXActiveVelocity;

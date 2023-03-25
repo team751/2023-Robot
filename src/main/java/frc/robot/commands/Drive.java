@@ -73,8 +73,10 @@ public class Drive extends CommandBase {
         // Get joystick values
         FilteredValues filteredDriveSpeeds = getFilteredValues();
         // Drive via stick values
-        swerveSubsystem.drive(-filteredDriveSpeeds.vx, filteredDriveSpeeds.vy, filteredDriveSpeeds.rps,false);
+        swerveSubsystem.drive(filteredDriveSpeeds.vx, -filteredDriveSpeeds.vy, filteredDriveSpeeds.rps,false);
         swerveSubsystem.debugPutEncoderValues();
+        SmartDashboard.putNumber("navx X", navX2.getXAngle());
+        SmartDashboard.putNumber("navx Y", navX2.getYAngle());
     }
 
     public FilteredValues getFilteredValues(){

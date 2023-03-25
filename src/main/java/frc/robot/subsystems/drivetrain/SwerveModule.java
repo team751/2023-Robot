@@ -41,6 +41,7 @@ public class SwerveModule extends SubsystemBase {
   private Debouncer zeroModuleDebouncer;
   private Debouncer isFinishedDebouncer;
   private FunctionalCommand zeroWheelsCommand;
+  private boolean isZeroed;
 
   /** Creates a new SwerveDriveSubsystem. */
   public SwerveModule(int driveID, int spinID, int encoderID, double absoluteEncoderOffset, double relativeEncoderOffset, int reedSwitchPortID) {
@@ -64,6 +65,7 @@ public class SwerveModule extends SubsystemBase {
     // init debouncer
     zeroModuleDebouncer = new Debouncer(0.2);
     isFinishedDebouncer = new Debouncer(0.2);
+    isZeroed = false;
    
     zeroWheelsCommand = new FunctionalCommand(()->SmartDashboard.putString("CurrentMode","Zeroing"), this::resetSpinMotor, this::setRelativeEncodersToZero, this::isZeroed);
   }
@@ -78,6 +80,7 @@ public class SwerveModule extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putBoolean(getName() + " reed switch", reedSwitch.get());
   }
 
   @Override
@@ -112,7 +115,6 @@ public class SwerveModule extends SubsystemBase {
 
   public double drive(SwerveModuleState state) {
     state = SwerveModuleState.optimize(state, getCurrentRotation2d());
-    driveMotor.setInverted(SmartDashboard.getBoolean(getName() + "invert?", false));
     // setting the angle
     double angleSetpoint = state.angle.getRadians();
     setAngle(angleSetpoint);
@@ -130,37 +132,42 @@ public class SwerveModule extends SubsystemBase {
   }
 
   private void resetSpinMotor() {
+    isZeroed = false;
     driveMotor.set(0);
+    spinMotor.set(0);
     double motorSpeed = zeroingPidController.calculate(absoluteEncoder.getAbsolutePositionRadians(), ABSOLUTE_ENCODER_OFFSET);
     double normalizedMotorSpinSpeed = (motorSpeed / Constants.spinMotorMaxSpeedMetersPerSecond)
         * Constants.gearRatioSpin;
     spinMotor.set(normalizedMotorSpinSpeed);
     if (isZeroedSingleDebounce()) {
+      spinMotor.set(0);
       // if the reed switch is not triggered (meaning the module is opposite where it
       // should be) then invert the motor's direction
       spinEncoder.setPosition(-RELATIVE_ENCODER_OFFSET);
       Thread t = new Thread(() -> {
         try {
-          Thread.sleep(100);
+          Thread.sleep(120);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
-        if (!reedSwitch.get()) {
-          driveMotor.setInverted(true);
-        } else {
-          driveMotor.setInverted(false);
-        }
+        setRelativeEncodersToZero(false);
+        isZeroed = true;
       });
       t.start();
     }
   }
 
   private boolean isZeroed(){
-      return isFinishedDebouncer.calculate(isZeroedSingleDebounce());
+      if(isZeroed){
+        isZeroed = false;
+        return true;
+      }else{
+        return isZeroed;
+      }
   }
 
   private boolean isZeroedSingleDebounce(){
-     return zeroModuleDebouncer.calculate(Math.abs(absoluteEncoder.getAbsolutePositionRadians() - ABSOLUTE_ENCODER_OFFSET) < 0.1);
+     return zeroModuleDebouncer.calculate(Math.abs(absoluteEncoder.getAbsolutePositionRadians() - ABSOLUTE_ENCODER_OFFSET) < 0.05);
   }
 
   
