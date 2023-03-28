@@ -141,6 +141,18 @@ public class SwerveDrive extends SubsystemBase {
         // This method will be called once per scheduler run during simulation
     }
 
+    public void crossWheels(){
+        frontLeft.setSpeed(0);
+        frontRight.setSpeed(0);
+        backLeft.setSpeed(0);
+        backRight.setSpeed(0);
+
+        frontLeft.setAngle(-Math.PI/2);
+        frontRight.setAngle(Math.PI/2);
+        backLeft.setAngle(Math.PI);
+        backRight.setAngle(-Math.PI);
+    }
+
     public void stop() {
         frontLeft.stop();
         frontRight.stop();

@@ -46,8 +46,8 @@ public class SwerveModule extends SubsystemBase {
   /** Creates a new SwerveDriveSubsystem. */
   public SwerveModule(int driveID, int spinID, int encoderID, double absoluteEncoderOffset, double relativeEncoderOffset, int reedSwitchPortID) {
     // PID controller for smoothly rotating the swerve module
-    rotationalPidController = new PIDController(Constants.anglePIDDefaultValue, 0.4, 0.01);
-    zeroingPidController = new PIDController(Constants.anglePIDDefaultValue, 0.4, 0.01);
+    rotationalPidController = new PIDController(Constants.anglePIDDefaultValue, 0.5, 0.03);
+    zeroingPidController = new PIDController(0.75, 0.55, 0.04);
     rotationalPidController.enableContinuousInput(-Math.PI, Math.PI);
     // Init motors
     driveMotor = new CANSparkMax(driveID, MotorType.kBrushless);
@@ -167,7 +167,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   private boolean isZeroedSingleDebounce(){
-     return zeroModuleDebouncer.calculate(Math.abs(absoluteEncoder.getAbsolutePositionRadians() - ABSOLUTE_ENCODER_OFFSET) < 0.05);
+     return zeroModuleDebouncer.calculate(Math.abs(absoluteEncoder.getAbsolutePositionRadians() - ABSOLUTE_ENCODER_OFFSET) < 0.07);
   }
 
   

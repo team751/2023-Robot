@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.introspect.WithMember;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.absencoder.*;
@@ -43,11 +44,12 @@ public class RobotContainer {
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
   private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);//TODO: PUT IN CONSTANTS
- // private final WheelyArm wheelyArm = new WheelyArm(6,7);
+  private final WheelyArm wheelyArm = new WheelyArm(6,7);
 
   // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
   private final Odometry navX2 = Odometry.getInstance();
+  private final NavX2CompFilter navX2CompFilter = new NavX2CompFilter();
 
   private final SwerveDrive swerve = new SwerveDrive(
       frontLeftModule, 
@@ -57,9 +59,10 @@ public class RobotContainer {
   private final AutoLevel autoLevel = new AutoLevel(navX2, swerve);
   private final Drive drive = new Drive(swerve, limelight, navX2);
   private final TheBeltCommand beltCommand = new TheBeltCommand(theBelt);
-  //private final WheelyArmCommand wheelyArmCommand = new WheelyArmCommand(wheelyArm);
+  private final TheBeltTwoCommand beltBackwards = new TheBeltTwoCommand(theBelt);
+  private final WheelyArmCommand wheelyArmCommand = new WheelyArmCommand(wheelyArm);
 
-  private final AutonSimple m_autonCommand = new AutonSimple(swerve,beltCommand);
+  private final AutonSimple m_autonCommand = new AutonSimple(swerve,beltCommand,autoLevel,navX2);
 
   //TESTING COMMANDS
   private final SwerveDriveTest m_testCommand = new SwerveDriveTest(backRightModule);
@@ -69,6 +72,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    SmartDashboard.putBoolean("Mobility", true);
+    SmartDashboard.putBoolean("Engage", false);
   }
 
   /**
@@ -80,10 +85,11 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    Constants.driverController.a().toggleOnTrue(autoLevel.unless(() -> swerve.isZeroing()));
+    Constants.driverController.a().whileTrue(autoLevel.unless(() -> swerve.isZeroing()));
     Constants.driverController.b().onTrue(Commands.runOnce(swerve::zeroModules).unless(autoLevel::isScheduled));
     Constants.driverController.x().whileTrue(beltCommand);
-   // Constants.driverController.y().whileTrue(wheelyArmCommand);
+    Constants.driverController.y().whileTrue(wheelyArmCommand);
+    Constants.driverController.rightTrigger().toggleOnTrue(beltBackwards);
   }
 
   /**

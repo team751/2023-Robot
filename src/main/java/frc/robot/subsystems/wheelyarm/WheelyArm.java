@@ -23,8 +23,8 @@ public class WheelyArm extends SubsystemBase {
     }
 
     public void run(double speed){
-        setUpperMotor(speed);
-        setLowerMotor(-speed);
+        setUpperMotor(-speed);
+        setLowerMotor(speed);
     }
 
     @Override
