@@ -53,7 +53,7 @@ public class SwerveDrive extends SubsystemBase {
         // Convert speed vector and rotation to module speeds
         ChassisSpeeds speeds;
         if(fieldCentric == true){
-            Rotation2d heading = new Rotation2d(navX2.getYaw());
+            Rotation2d heading = new Rotation2d(navX2.getFusedHeading());
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rotationRadiansPerSecond, heading);
         }else{
             speeds = new ChassisSpeeds(vx, vy, rotationRadiansPerSecond);
