@@ -4,6 +4,9 @@ import frc.robot.Constants;
 import frc.robot.subsystems.camera.Limelight;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
 import frc.robot.subsystems.gyro.Odometry;
+
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -19,7 +22,7 @@ public class Drive extends CommandBase {
     private final SlewRateLimiter vyFLimiter;
     private final SlewRateLimiter rpsFLimiter;
     // Gyroscope
-    private Odometry navX2;
+    private AHRS navX2;
 
     /**
      * Creates a new SwerveDriveCommand.
@@ -36,7 +39,7 @@ public class Drive extends CommandBase {
         public double rps;
     }
 
-    public Drive(SwerveDrive subsystem, Limelight limelight, Odometry navX2) {
+    public Drive(SwerveDrive subsystem, Limelight limelight, AHRS navX2) {
         this.limelight = limelight;
         this.swerveSubsystem = subsystem;
         this.navX2 = navX2;
@@ -75,8 +78,8 @@ public class Drive extends CommandBase {
         // Drive via stick values
         swerveSubsystem.drive(filteredDriveSpeeds.vx, -filteredDriveSpeeds.vy, filteredDriveSpeeds.rps,false);
         swerveSubsystem.debugPutEncoderValues();
-        SmartDashboard.putNumber("navx X", navX2.getXAngle());
-        SmartDashboard.putNumber("navx Y", navX2.getYAngle());
+        SmartDashboard.putNumber("navx X", navX2.getYaw());
+        SmartDashboard.putNumber("navx Y", navX2.getPitch());
     }
 
     public FilteredValues getFilteredValues(){
@@ -89,7 +92,6 @@ public class Drive extends CommandBase {
         } else {
             fv.vx = Constants.driverJoystick.getX();
             fv.vy = Constants.driverJoystick.getY();
-            //Throttle lever at the bottom of the controller i think
             fv.rps = Constants.driverJoystick.getThrottle(); 
         }
 

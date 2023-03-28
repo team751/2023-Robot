@@ -23,25 +23,24 @@ import frc.robot.subsystems.switches.ReedSwitch;
 public class SwerveModule extends SubsystemBase {
 
   // Motors
-  private final CANSparkMax driveMotor;
-  private final CANSparkMax spinMotor;
+  public final CANSparkMax driveMotor;
+  public final CANSparkMax spinMotor;
   // Motor encoders
-  private final RelativeEncoder spinEncoder;
-  private final RelativeEncoder driveEncoder;
-  private final REVThroughBoreEncoder absoluteEncoder;
+  public final RelativeEncoder spinEncoder;
+  public final RelativeEncoder driveEncoder;
+  public final REVThroughBoreEncoder absoluteEncoder;
   // Setpoint for absolute encoder
-  private final double ABSOLUTE_ENCODER_OFFSET;
-  private final double RELATIVE_ENCODER_OFFSET;
+  public final double ABSOLUTE_ENCODER_OFFSET;
+  public final double RELATIVE_ENCODER_OFFSET;
   // PID controllers for rotation
-  private final PIDController rotationalPidController;
-  private final PIDController zeroingPidController;
+  public final PIDController rotationalPidController;
+  public final PIDController zeroingPidController;
 
   // Auto-Zero helpers
-  private ReedSwitch reedSwitch;
-  private Debouncer zeroModuleDebouncer;
-  private Debouncer isFinishedDebouncer;
-  private FunctionalCommand zeroWheelsCommand;
-  private boolean isZeroed;
+  public ReedSwitch reedSwitch;
+  public Debouncer zeroModuleDebouncer;
+  public ZeroWheelsCommand zeroWheelsCommand;
+  public boolean isZeroed;
 
   /** Creates a new SwerveDriveSubsystem. */
   public SwerveModule(int driveID, int spinID, int encoderID, double absoluteEncoderOffset, double relativeEncoderOffset, int reedSwitchPortID) {
@@ -64,10 +63,9 @@ public class SwerveModule extends SubsystemBase {
     reedSwitch = new ReedSwitch(reedSwitchPortID);
     // init debouncer
     zeroModuleDebouncer = new Debouncer(0.2);
-    isFinishedDebouncer = new Debouncer(0.2);
     isZeroed = false;
    
-    zeroWheelsCommand = new FunctionalCommand(()->SmartDashboard.putString("CurrentMode","Zeroing"), this::resetSpinMotor, this::setRelativeEncodersToZero, this::isZeroed);
+    zeroWheelsCommand = new ZeroWheelsCommand(this);
   }
 
   public SwerveModule(Constants.SwerveModuleConfig moduleConfig) {
@@ -81,6 +79,7 @@ public class SwerveModule extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean(getName() + " reed switch", reedSwitch.get());
+    debugPutValues();
   }
 
   @Override
@@ -121,7 +120,7 @@ public class SwerveModule extends SubsystemBase {
 
     // set the drive speed to 1/3 of its theoretical max
     //TODO: get values closer to theoretical max
-    double motorSpeed = state.speedMetersPerSecond / Constants.maxDriveSpeed / 1.2;
+    double motorSpeed = state.speedMetersPerSecond / Constants.maxDriveSpeed / 1.5;
     driveMotor.set(motorSpeed);
     return driveMotor.getEncoder().getVelocity();
   }
@@ -131,66 +130,19 @@ public class SwerveModule extends SubsystemBase {
     setAngle(angleSetpoint);
   }
 
-  private void resetSpinMotor() {
-    isZeroed = false;
-    driveMotor.set(0);
-    spinMotor.set(0);
-    double motorSpeed = zeroingPidController.calculate(absoluteEncoder.getAbsolutePositionRadians(), ABSOLUTE_ENCODER_OFFSET);
-    double normalizedMotorSpinSpeed = (motorSpeed / Constants.spinMotorMaxSpeedMetersPerSecond)
-        * Constants.gearRatioSpin;
-    spinMotor.set(normalizedMotorSpinSpeed);
-    if (isZeroedSingleDebounce()) {
-      spinMotor.set(0);
-      // if the reed switch is not triggered (meaning the module is opposite where it
-      // should be) then invert the motor's direction
-      spinEncoder.setPosition(-RELATIVE_ENCODER_OFFSET);
-      Thread t = new Thread(() -> {
-        try {
-          Thread.sleep(120);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        setRelativeEncodersToZero(false);
-        isZeroed = true;
-      });
-      t.start();
-    }
-  }
-
-  private boolean isZeroed(){
-      if(isZeroed){
-        isZeroed = false;
-        return true;
-      }else{
-        return isZeroed;
-      }
-  }
-
-  private boolean isZeroedSingleDebounce(){
-     return zeroModuleDebouncer.calculate(Math.abs(absoluteEncoder.getAbsolutePositionRadians() - ABSOLUTE_ENCODER_OFFSET) < 0.07);
-  }
-
-  
-  private void setRelativeEncodersToZero(boolean interrupted){
-    if (!reedSwitch.get()) {
-      driveMotor.setInverted(true);
-    } else {
-      driveMotor.setInverted(false);
-    }
-  }
-
-  public FunctionalCommand getZeroCommand(){
+  public ZeroWheelsCommand getZeroCommand(){
     return zeroWheelsCommand;
   }
+
   public boolean isZeroing(){
     return zeroWheelsCommand.isScheduled();
   }
 
   public void debugPutValues() {
     SmartDashboard.putNumber(this.getName() + " Absolute Encoder Angle (rad) ", absoluteEncoder.getAbsolutePositionRadians());
-    SmartDashboard.putNumber(this.getName() + " Wheel Angle", spinEncoder.getPosition());
-    SmartDashboard.putNumber(this.getName() + " Angle (rad)", getCurrentAngleRadians());
-    SmartDashboard.putNumber(this.getName() + " Encoder Velocity", driveMotor.getEncoder().getVelocity());
+    SmartDashboard.putNumber(this.getName() + " Wheel Angle ", spinEncoder.getPosition());
+    SmartDashboard.putNumber(this.getName() + " Angle (rad) ", getCurrentAngleRadians());
+    SmartDashboard.putNumber(this.getName() + " Drive Encoder Velocity", getDriveEncoderVelocity());
     reedSwitch.debugPutValues();
   }
 
@@ -200,7 +152,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public double getDriveEncoderVelocity(){
-    return driveEncoder.getVelocity()*Constants.maxDriveSpeed;
+    return driveEncoder.getVelocity() * Constants.maxDriveSpeed;
   }
 
 

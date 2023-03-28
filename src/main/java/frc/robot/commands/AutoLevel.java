@@ -3,6 +3,9 @@ package frc.robot.commands;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
 import frc.robot.subsystems.gyro.NavX2CompFilter;
 import frc.robot.subsystems.gyro.Odometry;
+
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -11,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 
 public class AutoLevel extends CommandBase{
-    private Odometry navX2;
+    private AHRS navX2;
     private SwerveDrive swerveDrive;
     private PIDController levelXPIDController;
     private SlewRateLimiter limiter;
@@ -20,7 +23,7 @@ public class AutoLevel extends CommandBase{
 
     private boolean finished;
     
-    public AutoLevel(Odometry navX2, SwerveDrive swerveDrive){
+    public AutoLevel(AHRS navX2, SwerveDrive swerveDrive){
         this.navX2 = navX2;
         this.swerveDrive = swerveDrive;
         addRequirements(swerveDrive);
@@ -38,18 +41,19 @@ public class AutoLevel extends CommandBase{
 
     @Override
     public void execute(){
-        double ySpeed = levelXPIDController.calculate(navX2.getYAngle()+88, 0);
-        if(Math.abs(ySpeed) > 1) ySpeed = 1 * Math.signum(ySpeed);
+        // Robot wants to be at 0 degrees, PID controller to help
+        double ySpeed = levelXPIDController.calculate(navX2.getPitch(), 0);
+        // Caps the speed at 0.75 m/s
+        if(Math.abs(ySpeed) > 0.75) ySpeed = 0.75 * Math.signum(ySpeed);
         //ySpeed = levelXPIDController.calculate(states[1], 0);
-        swerveDrive.drive(0, ySpeed, 0,false);
+        swerveDrive.drive(0, ySpeed, 0,true);
         //finished = debouncer.calculate(states[0] < 3);
         SmartDashboard.putNumber("Speed For Level", ySpeed*-1);
-        if(debouncer.calculate(navX2.getYAngle()+88 < 6)) this.end(false);
     }
 
     @Override
     public boolean isFinished(){
-        return finished;
+        return debouncer.calculate(navX2.getPitch() < 6);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package frc.robot.subsystems.drivetrain;
 
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
@@ -10,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.SwerveModuleConfig;
 import frc.robot.subsystems.gyro.Odometry;
 
 // Subsystem controlling all four individual swerve modules
@@ -21,7 +25,7 @@ public class SwerveDrive extends SubsystemBase {
 
     private SwerveDriveKinematicsConstraint velocityNormalizer;
     private SwerveDriveKinematics kinematics;
-    private Odometry navX2;
+    private AHRS navX2;
 
     /** Creates a new ExampleSubsystem. */
     public SwerveDrive(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft,
@@ -44,17 +48,17 @@ public class SwerveDrive extends SubsystemBase {
         SmartDashboard.putBoolean("Disable All Motors", false);
     }
 
-    public void drive(double vx,double vy, double rotationRadiansPerSecond,boolean fieldCentric){
-        drive(vx,vy,rotationRadiansPerSecond,fieldCentric,false);
-    }
-
-    private void drive(double vx, double vy, double rotationRadiansPerSecond,boolean fieldCentric,boolean spinWithoutDriving) {
+    public void drive(double vx, double vy, double rotationRadiansPerSecond,boolean fieldCentric) {
         // Joystick values to a speed vector
         // Convert speed vector and rotation to module speeds
-        ChassisSpeeds speeds = new ChassisSpeeds(vx, vy, rotationRadiansPerSecond);
+        ChassisSpeeds speeds;
         if(fieldCentric == true){
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rotationRadiansPerSecond, navX2.getHeading());
+            Rotation2d heading = new Rotation2d(navX2.getYaw());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rotationRadiansPerSecond, heading);
+        }else{
+            speeds = new ChassisSpeeds(vx, vy, rotationRadiansPerSecond);
         }
+
         // Unpack module speeds
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
         SwerveModuleState frontLeftState = states[0];
@@ -63,56 +67,44 @@ public class SwerveDrive extends SubsystemBase {
         SwerveModuleState backRightState = states[3];
 
         // stops modules from resetting their position if the joystick is not being used
-        if (Math.sqrt(vx * vx + vy * vy) < 0.05 && Math.abs(rotationRadiansPerSecond) < 0.05) {
+        if (Math.sqrt(vx * vx + vy * vy) < 0.1 && Math.abs(rotationRadiansPerSecond) < 0.1) {
             this.stop();
             return;
         }
 
         // Override to enable all motors at once on SmartDashboard, on by default
         boolean disableAllMotors = SmartDashboard.getBoolean("Disable All Motors", false);
+        
         if(disableAllMotors){
             this.stop();
             return;
         }
 
         /* Set swerve module speeds and rotations, also put them to smartdashboard */
-        if (moduleEnabled("Front Right")) {
+        if (moduleEnabled(SwerveModuleConfig.FRONT_LEFT)) {
             // Actual Driving
-            if(!spinWithoutDriving) frontRight.drive(frontRightState);
-            else frontRight.spinWithoutDriving(frontRightState);
+            frontRight.drive(frontRightState);
         }
-        if (moduleEnabled("Front Left")) {
-            if(!spinWithoutDriving) {
-                frontLeft.drive(frontLeftState);
-            } else {
-                frontLeft.spinWithoutDriving(frontLeftState);
-            }
+        if (moduleEnabled(SwerveModuleConfig.FRONT_RIGHT)) {
+            frontLeft.drive(frontLeftState);
         }
-        if (moduleEnabled("Back Right")) {
-            if(!spinWithoutDriving) {
-                backRight.drive(backRightState);
-            } else {
-                backRight.spinWithoutDriving(backRightState);
-            }
+        if (moduleEnabled(SwerveModuleConfig.BACK_RIGHT)) {
+            backRight.drive(backRightState);
         }
-        if (moduleEnabled("Back Left")) {
-            if(!spinWithoutDriving) {
-                backLeft.drive(backLeftState);
-            } else {
-                backLeft.spinWithoutDriving(backLeftState);
-            }
+        if (moduleEnabled(SwerveModuleConfig.BACK_LEFT)) {
+            backLeft.drive(backLeftState);
         }
     }
 
-    private boolean moduleEnabled(String moduleName){
+    private boolean moduleEnabled(SwerveModuleConfig moduleName){
         switch(moduleName){
-            case "Front Left":
+            case FRONT_LEFT:
                 return SmartDashboard.getBoolean("Front Left Motor", true);
-            case "Front Right":
+            case FRONT_RIGHT:
                 return SmartDashboard.getBoolean("Front Right Motor", true);
-            case "Back Left":
+            case BACK_RIGHT:
                 return SmartDashboard.getBoolean("Back Left Motor", true);
-            case "Back Right":
+            case BACK_LEFT:
                 return SmartDashboard.getBoolean("Back Right Motor", true);
             default:
                 return false;

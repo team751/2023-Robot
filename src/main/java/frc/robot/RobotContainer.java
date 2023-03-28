@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.fasterxml.jackson.databind.introspect.WithMember;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -43,12 +44,12 @@ public class RobotContainer {
   private final SwerveModule backLeftModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_LEFT);
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
-  private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);//TODO: PUT IN CONSTANTS
+  private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);
   private final WheelyArm wheelyArm = new WheelyArm(6,7);
 
   // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
-  private final Odometry navX2 = Odometry.getInstance();
+  private final AHRS navX2 = new AHRS();
   private final NavX2CompFilter navX2CompFilter = new NavX2CompFilter();
 
   private final SwerveDrive swerve = new SwerveDrive(
