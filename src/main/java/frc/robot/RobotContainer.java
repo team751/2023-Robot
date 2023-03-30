@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.fasterxml.jackson.databind.introspect.WithMember;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -12,22 +11,13 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.absencoder.*;
 import frc.robot.subsystems.gyro.*;
-import frc.robot.subsystems.camera.*;
-import frc.robot.subsystems.switches.ReedSwitch;
-import frc.robot.subsystems.thebelt.TheBelt;
 import frc.robot.subsystems.wheelyarm.WheelyArm;
-import frc.robot.subsystems.drivetrain.*;
 import frc.robot.subsystems.camera.Limelight;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
 import frc.robot.subsystems.drivetrain.SwerveModule;
-import frc.robot.subsystems.gyro.ComplementaryFilter;
 import frc.robot.commands.*;
-import frc.robot.commands.testcommands.FollowAprilTag;
-import frc.robot.commands.testcommands.SwerveDriveTest;
-import frc.robot.subsystems.gyro.Odometry;
-import frc.robot.commands.TheBeltCommand;
+import frc.robot.commands.auton.AutonExecutor;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -44,7 +34,7 @@ public class RobotContainer {
   private final SwerveModule backLeftModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_LEFT);
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
-  private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);
+  //private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);
   private final WheelyArm wheelyArm = new WheelyArm(6,7);
 
   // PRODUCTION COMMANDS
@@ -52,21 +42,21 @@ public class RobotContainer {
   private final AHRS navX2 = new AHRS();
   private final NavX2CompFilter navX2CompFilter = new NavX2CompFilter();
 
+
   private final SwerveDrive swerve = new SwerveDrive(
       frontLeftModule, 
       frontRightModule, 
       backLeftModule, 
-      backRightModule);
+      backRightModule,
+      navX2);
   private final AutoLevel autoLevel = new AutoLevel(navX2, swerve);
   private final Drive drive = new Drive(swerve, limelight, navX2);
-  private final TheBeltCommand beltCommand = new TheBeltCommand(theBelt);
-  private final TheBeltTwoCommand beltBackwards = new TheBeltTwoCommand(theBelt);
+  //private final TheBeltCommand beltCommand = new TheBeltCommand(theBelt);
+  //private final TheBeltTwoCommand beltBackwards = new TheBeltTwoCommand(theBelt);
   private final WheelyArmCommand wheelyArmCommand = new WheelyArmCommand(wheelyArm);
 
-  private final AutonSimple m_autonCommand = new AutonSimple(swerve,beltCommand,autoLevel,navX2);
-
+  private final AutonExecutor autonExecutor = new AutonExecutor(swerve);
   //TESTING COMMANDS
-  private final SwerveDriveTest m_testCommand = new SwerveDriveTest(backRightModule);
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -88,9 +78,9 @@ public class RobotContainer {
   private void configureButtonBindings() {
     Constants.driverController.a().whileTrue(autoLevel.unless(() -> swerve.isZeroing()));
     Constants.driverController.b().onTrue(Commands.runOnce(swerve::zeroModules).unless(autoLevel::isScheduled));
-    Constants.driverController.x().whileTrue(beltCommand);
+    //Constants.driverController.x().whileTrue(beltCommand);
     Constants.driverController.y().whileTrue(wheelyArmCommand);
-    Constants.driverController.rightTrigger().toggleOnTrue(beltBackwards);
+    //Constants.driverController.rightTrigger().toggleOnTrue(beltBackwards);
   }
 
   /**
@@ -100,7 +90,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // A FollowAprilTag will run in autonomous
-    return m_autonCommand;
+    return autonExecutor;
   }
 
   public Command getTeleopCommand() {
@@ -109,6 +99,6 @@ public class RobotContainer {
   }
 
   public Command getTestCommand() {
-    return m_testCommand;
+    return null;
   }
 }

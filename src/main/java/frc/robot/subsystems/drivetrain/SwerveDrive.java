@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -18,22 +19,23 @@ import frc.robot.subsystems.gyro.Odometry;
 
 // Subsystem controlling all four individual swerve modules
 public class SwerveDrive extends SubsystemBase {
-    private SwerveModule frontLeft;
-    private SwerveModule frontRight;
-    private SwerveModule backLeft;
-    private SwerveModule backRight;
+    private final SwerveModule frontLeft;
+    private final SwerveModule frontRight;
+    private final SwerveModule backLeft;
+    private final SwerveModule backRight;
 
-    private SwerveDriveKinematicsConstraint velocityNormalizer;
-    private SwerveDriveKinematics kinematics;
-    private AHRS navX2;
+    private final SwerveDriveKinematicsConstraint velocityNormalizer;
+    private final SwerveDriveKinematics kinematics;
+    private final AHRS navX2;
 
     /** Creates a new ExampleSubsystem. */
     public SwerveDrive(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule backLeft,
-            SwerveModule backRight) {
+            SwerveModule backRight, AHRS navX2) {
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.backLeft = backLeft;
         this.backRight = backRight;
+        this.navX2 = navX2;
 
         kinematics = new SwerveDriveKinematics(
                 Constants.frontLeftOffsetMeters,
@@ -52,8 +54,8 @@ public class SwerveDrive extends SubsystemBase {
         // Joystick values to a speed vector
         // Convert speed vector and rotation to module speeds
         ChassisSpeeds speeds;
-        if(fieldCentric == true){
-            Rotation2d heading = new Rotation2d(navX2.getFusedHeading());
+        if(fieldCentric){
+            Rotation2d heading = new Rotation2d(Units.degreesToRadians(-navX2.getYaw()));
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rotationRadiansPerSecond, heading);
         }else{
             speeds = new ChassisSpeeds(vx, vy, rotationRadiansPerSecond);
@@ -126,6 +128,8 @@ public class SwerveDrive extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        SmartDashboard.putNumber(getName() + "navX2 fused heading",navX2.getFusedHeading());
+        SmartDashboard.putNumber(getName() + "navX2 yaw",navX2.getYaw());
     }
 
     @Override
@@ -158,6 +162,7 @@ public class SwerveDrive extends SubsystemBase {
         backLeft.debugPutValues();
         backRight.debugPutValues();
     }
+
 
     public ChassisSpeeds robotPosEncoder(){
         SwerveModuleState frontLeftEncoderState = new SwerveModuleState(frontLeft.getDriveEncoderVelocity(), frontLeft.getCurrentRotation2d());
