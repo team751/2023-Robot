@@ -8,11 +8,9 @@ import frc.robot.Constants;
 
 public class ReedSwitch extends SubsystemBase {
     private DigitalInput reedSwitch;
-    private Debouncer debouncer;
 
     public ReedSwitch(int portID) {
         reedSwitch = new DigitalInput(portID);
-        debouncer = new Debouncer(Constants.reedSwitchDebounceTime, Debouncer.DebounceType.kBoth);
     }
 
     public ReedSwitch(int portID, String name) {
@@ -22,7 +20,7 @@ public class ReedSwitch extends SubsystemBase {
 
     public boolean get() {
         // negate since default is true
-        return !debouncer.calculate(reedSwitch.get());
+        return reedSwitch.get();
     }
 
     public void debugPutValues() {
