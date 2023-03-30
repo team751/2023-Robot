@@ -62,6 +62,7 @@ public class Autonomous extends CommandBase {
     }
   }
 
+  @Deprecated
   public Autonomous(SwerveDrive subsystem, Limelight limelight, Odometry navX2) {
     this.limelight = limelight;
     this.navX2 = navX2;

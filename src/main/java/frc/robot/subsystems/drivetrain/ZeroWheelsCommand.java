@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ZeroWheelsCommand extends CommandBase {
   private final SwerveModule module;
-
+  private double startTime;
   /**
    * Creates a new zeroWheelsCommand.
    *
@@ -23,8 +23,10 @@ public class ZeroWheelsCommand extends CommandBase {
   @Override
   public void initialize() {
     this.module.stop();
+    this.startTime = System.currentTimeMillis();
   }
 
+  boolean hasRun = false;
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
@@ -36,9 +38,9 @@ public class ZeroWheelsCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    if(interrupted) return;
     module.setSpinSpeed(0);
     module.spinEncoder.setPosition(-module.RELATIVE_ENCODER_OFFSET);
-    if(interrupted) return;
     if (!module.reedSwitch.get()) {
         module.driveMotor.setInverted(true);
     } else {
@@ -50,7 +52,7 @@ public class ZeroWheelsCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     double distanceFromZero = Math.abs(module.absoluteEncoder.getAbsolutePositionRadians() - module.ABSOLUTE_ENCODER_OFFSET);
-    return module.zeroModuleDebouncer.calculate(distanceFromZero < 0.07);
+    return module.zeroModuleDebouncer.calculate(distanceFromZero < 0.07) || System.currentTimeMillis() - startTime > 5000;
   }
 }
 
