@@ -55,7 +55,10 @@ public class SwerveDrive extends SubsystemBase {
         // Convert speed vector and rotation to module speeds
         ChassisSpeeds speeds;
         if(fieldCentric){
-            Rotation2d heading = new Rotation2d(Units.degreesToRadians(-navX2.getYaw()));
+            double yaw = navX2.getYaw();
+            SmartDashboard.putNumber("navx yaw", yaw);
+            // + 180 due to mounting location
+            Rotation2d heading = new Rotation2d(Units.degreesToRadians(-navX2.getYaw() + 180));
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rotationRadiansPerSecond, heading);
         }else{
             speeds = new ChassisSpeeds(vx, vy, rotationRadiansPerSecond);
@@ -128,8 +131,6 @@ public class SwerveDrive extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putNumber(getName() + "navX2 fused heading",navX2.getFusedHeading());
-        SmartDashboard.putNumber(getName() + "navX2 yaw",navX2.getYaw());
     }
 
     @Override

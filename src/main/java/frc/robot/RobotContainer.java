@@ -7,7 +7,10 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -39,7 +42,7 @@ public class RobotContainer {
 
   // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
-  private final AHRS navX2 = new AHRS();
+  private final AHRS navX2 = new AHRS(I2C.Port.kMXP,(byte)50);
   private final NavX2CompFilter navX2CompFilter = new NavX2CompFilter();
 
 
@@ -63,6 +66,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    navX2.enableLogging(true);
     SmartDashboard.putBoolean("Mobility", true);
     SmartDashboard.putBoolean("Engage", false);
   }
@@ -81,6 +85,7 @@ public class RobotContainer {
     //Constants.driverController.x().whileTrue(beltCommand);
     Constants.driverController.y().whileTrue(wheelyArmCommand);
     //Constants.driverController.rightTrigger().toggleOnTrue(beltBackwards);
+    Constants.driverController.start().onTrue(Commands.runOnce(() -> {navX2.zeroYaw(); System.out.println("zero");}));
   }
 
   /**

@@ -101,6 +101,8 @@ public class Drive extends CommandBase {
             fv.vy = 0;
         }
 
+        if (Math.abs(fv.rps) < 0.1) fv.rps = 0;
+
         fv.vx = vxFLimiter.calculate(fv.vx) * Constants.maxDriveSpeed;
         fv.vy = vyFLimiter.calculate(fv.vy) * Constants.maxDriveSpeed;
         //Comment in to disable rotation
