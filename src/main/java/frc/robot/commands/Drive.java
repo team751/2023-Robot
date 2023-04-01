@@ -108,6 +108,7 @@ public class Drive extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         // swerveSubsystem.stop();
+        System.out.println("stopped drive");
     }
 
     // Returns true when the command should end.

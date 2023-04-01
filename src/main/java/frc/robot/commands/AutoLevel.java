@@ -31,11 +31,13 @@ public class AutoLevel extends CommandBase{
     @Override
     public void execute(){
         // Robot wants to be at 0 degrees, PID controller to help
-        double ySpeed = levelXPIDController.calculate(navX2.getPitch(), 0);
+        double pitch = navX2.getPitch();
+        double ySpeed = levelXPIDController.calculate(pitch, 0);
         // Caps the speed at 0.75 m/s
         if(Math.abs(ySpeed) > 0.75) ySpeed = 0.75 * Math.signum(ySpeed);
         //ySpeed = levelXPIDController.calculate(states[1], 0);
-        swerveDrive.drive(0, ySpeed, 0,true);
+        if(Math.abs(pitch) < 5) ySpeed = 0;
+        swerveDrive.drive(0, -ySpeed, 0,true);
         //finished = debouncer.calculate(states[0] < 3);
         SmartDashboard.putNumber("Speed For Level", ySpeed*-1);
     }

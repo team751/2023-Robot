@@ -79,7 +79,8 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    Constants.driverController.a().whileTrue(autoLevel.unless(() -> swerve.isZeroing()));
+    Constants.driverController.a().whileTrue(autoLevel);
+    Constants.driverController.a().onFalse(drive);
     Constants.driverController.b().onTrue(Commands.runOnce(swerve::zeroModules).unless(autoLevel::isScheduled));
     Constants.driverController.x().whileTrue(beltCommand);
     Constants.driverController.y().whileTrue(wheelyArmCommand);

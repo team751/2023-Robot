@@ -171,11 +171,11 @@ public final class Constants {
     // The Driver Station joystick used for driving the robot.
     public static final CommandXboxController driverController = new CommandXboxController(Constants.driveStickPort);
     public static final Joystick driverJoystick = new Joystick(Constants.flightStickPort);
-    public static final double chassisRotationsPerSecondMultiplier = Math.PI;
+    public static final double chassisRotationsPerSecondMultiplier = Math.PI * 4;
 
-    public static final double vxLimiterValue = 4;
-    public static final double vyLimiterValue = 4;
-    public static final double rpsLimiterValue = 1.5;
+    public static final double vxLimiterValue = 5;
+    public static final double vyLimiterValue = 5;
+    public static final double rpsLimiterValue = 8;
 
 /* 
     =====
