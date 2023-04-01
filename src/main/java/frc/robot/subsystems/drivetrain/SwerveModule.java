@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -72,8 +73,7 @@ public class SwerveModule extends SubsystemBase {
     this(moduleConfig.getDriveID(), moduleConfig.getSpinID(), moduleConfig.getEncoderID(),
         moduleConfig.getAbosoluteEncoderOffset(),moduleConfig.getRelativeEncoderOffset(), moduleConfig.getReedSwitchID());
     this.setName(moduleConfig.name());
-    SmartDashboard.putBoolean(getName() + "invert?", false);
-  }
+    }
 
   @Override
   public void periodic() {
@@ -125,6 +125,14 @@ public class SwerveModule extends SubsystemBase {
     return driveMotor.getEncoder().getVelocity();
   }
 
+  public SwerveModulePosition getPosition(){
+    return new SwerveModulePosition(
+      // TODO: Unchecked Conversion
+      this.driveEncoder.getPosition() * Constants.wheelCircumference * Constants.gearRatioDrive,
+      getCurrentRotation2d()
+    );
+  }
+
   public void spinWithoutDriving(SwerveModuleState state){
     double angleSetpoint = state.angle.getRadians();
     setAngle(angleSetpoint);
@@ -154,6 +162,5 @@ public class SwerveModule extends SubsystemBase {
   public double getDriveEncoderVelocity(){
     return driveEncoder.getVelocity() * Constants.maxDriveSpeed;
   }
-
 
 }

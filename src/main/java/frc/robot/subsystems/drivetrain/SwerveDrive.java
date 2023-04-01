@@ -2,10 +2,12 @@ package frc.robot.subsystems.drivetrain;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.util.Units;
@@ -26,6 +28,7 @@ public class SwerveDrive extends SubsystemBase {
 
     private final SwerveDriveKinematicsConstraint velocityNormalizer;
     private final SwerveDriveKinematics kinematics;
+    private final SwerveDriveOdometry odometry;
     private final AHRS navX2;
 
     /** Creates a new ExampleSubsystem. */
@@ -43,6 +46,15 @@ public class SwerveDrive extends SubsystemBase {
                 Constants.backLeftOffsetMeters,
                 Constants.backRightOffsetMeters);
         velocityNormalizer = new SwerveDriveKinematicsConstraint(kinematics, Constants.maxDriveSpeed);
+        this.odometry = new SwerveDriveOdometry(kinematics, navX2.getRotation2d(), 
+            new SwerveModulePosition[] {
+                frontLeft.getPosition(),
+                frontRight.getPosition(),
+                backLeft.getPosition(),
+                backRight.getPosition()
+            }, new Pose2d(0.0,0.0, new Rotation2d(0))
+        );
+
         SmartDashboard.putBoolean("Front Right Motor", true);
         SmartDashboard.putBoolean("Front Left Motor", true);
         SmartDashboard.putBoolean("Back Right Motor", true);

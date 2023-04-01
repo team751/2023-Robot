@@ -125,10 +125,6 @@ public final class Constants {
     public static final double gearRatioDrive = 90.0/14.0; 
     public static final double wheelCircumference = 0.1016 * Math.PI;
 
-    /* Wheely Arm Gear Ratios */
-    public static final double gearRatioWheelyArmUpper = 1.0/1.0; //unchecked
-    public static final double gearRatioWheelyArmLower = 1.0/1.0; //unchecked
-
     /* Motor maximum speed */
     public static final double driveMotorMaxRPM = 5676; 
     public static final double maxDriveSpeed = driveMotorMaxRPM / 60 / gearRatioDrive * wheelCircumference;

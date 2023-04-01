@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.SPI;
@@ -44,8 +45,6 @@ public class RobotContainer {
   private final Limelight limelight = new Limelight();
   private final AHRS navX2 = new AHRS(I2C.Port.kMXP,(byte)50);
   private final NavX2CompFilter navX2CompFilter = new NavX2CompFilter();
-
-
   private final SwerveDrive swerve = new SwerveDrive(
       frontLeftModule, 
       frontRightModule, 

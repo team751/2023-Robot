@@ -68,18 +68,11 @@ public class Drive extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        // I do not know why this works. I wish it didn't
-        // However, we added this random smart dashboard update now
-        // the command doesn't automatically cancel itself
-        // SmartDashboard.putString("Current Mode", "AAAAAAAAAAAAAAAA");
-
         // Get joystick values
         FilteredValues filteredDriveSpeeds = getFilteredValues();
         // Drive via stick values
         swerveSubsystem.drive(filteredDriveSpeeds.vx, -filteredDriveSpeeds.vy, filteredDriveSpeeds.rps,true);
         swerveSubsystem.debugPutEncoderValues();
-        SmartDashboard.putNumber("navx X", navX2.getYaw());
-        SmartDashboard.putNumber("navx Y", navX2.getPitch());
     }
 
     public FilteredValues getFilteredValues(){
@@ -100,7 +93,7 @@ public class Drive extends CommandBase {
             fv.vx = 0;
             fv.vy = 0;
         }
-
+        
         if (Math.abs(fv.rps) < 0.1) fv.rps = 0;
 
         fv.vx = vxFLimiter.calculate(fv.vx) * Constants.maxDriveSpeed;
