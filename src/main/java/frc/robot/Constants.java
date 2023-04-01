@@ -33,18 +33,18 @@ public final class Constants {
     //TODO: Find correct encoder offsets
     private static final double halfpi = Math.PI/2;
     public enum SwerveModuleConfig {
-        // redo relative
-        FRONT_RIGHT(12, 13, 1, 3.106, 0.6264488101 + halfpi, 5),
-        FRONT_LEFT(15, 14, 3, 3.132, 2.6927967072 + halfpi, 6),
-        BACK_LEFT(16, 17, 2, 0.8400, 3.337953091 + halfpi, 7),
-        BACK_RIGHT(11, 10, 0, 3.874, -0.392699241 + halfpi, 4);
+        //TODO: redo relative
+        FRONT_RIGHT(12, 13, 1, 3.106, 0.6264488101 + halfpi, 5),// white
+        FRONT_LEFT(15, 14, 3, 3.132, 2.6927967072 + halfpi, 6), // dark green
+        BACK_LEFT(16, 17, 2, 0.8400, 3.337953091 + halfpi, 7),  // blue
+        BACK_RIGHT(11, 10, 0, 3.874, -0.392699241 + halfpi, 4); // yellow
 
-        private final int driveID;
-        private final int spinID;
-        private final int encoderID;
-        private final double absoluteEncoderOffset;
-        private final double relativeEncoderOffset;
-        private final int reedSwitchID;
+        private final int       driveID;
+        private final int       spinID;
+        private final int       encoderID;
+        private final int       reedSwitchID;
+        private final double    absoluteEncoderOffset;
+        private final double    relativeEncoderOffset;
 
         SwerveModuleConfig(int driveID, int spinID, int encoderID, double absoluteEncoderOffset, int reedSwitchID) {
             this(driveID, spinID, encoderID, absoluteEncoderOffset, 0, reedSwitchID);
@@ -54,8 +54,8 @@ public final class Constants {
             this.driveID = driveID;
             this.spinID = spinID;
             this.encoderID = encoderID;
-            this.absoluteEncoderOffset = absoluteEncoderOffset;
             this.reedSwitchID = reedSwitchID;
+            this.absoluteEncoderOffset = absoluteEncoderOffset;
             this.relativeEncoderOffset = relativeEncoderOffset;
         }
 
@@ -172,6 +172,10 @@ public final class Constants {
     public static final CommandXboxController driverController = new CommandXboxController(Constants.driveStickPort);
     public static final Joystick driverJoystick = new Joystick(Constants.flightStickPort);
     public static final double chassisRotationsPerSecondMultiplier = Math.PI;
+
+    public static final double vxLimiterValue = 4;
+    public static final double vyLimiterValue = 4;
+    public static final double rpsLimiterValue = 1.5;
 
 /* 
     =====

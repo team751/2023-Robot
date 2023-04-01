@@ -46,9 +46,9 @@ public class Drive extends CommandBase {
         addRequirements(subsystem);
         addRequirements(limelight);
 
-        vxFLimiter = new SlewRateLimiter(4);
-        vyFLimiter = new SlewRateLimiter(4);
-        rpsFLimiter = new SlewRateLimiter(4);
+        vxFLimiter = new SlewRateLimiter(Constants.vxLimiterValue);
+        vyFLimiter = new SlewRateLimiter(Constants.vyLimiterValue);
+        rpsFLimiter = new SlewRateLimiter(Constants.rpsLimiterValue);
         
         
         SmartDashboard.putNumber("Left Stick Angle (Radians)", 0);

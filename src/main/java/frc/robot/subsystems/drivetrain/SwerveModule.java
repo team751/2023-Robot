@@ -2,17 +2,11 @@ package frc.robot.subsystems.drivetrain;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import java.util.function.Function;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -65,15 +59,16 @@ public class SwerveModule extends SubsystemBase {
     // init debouncer
     zeroModuleDebouncer = new Debouncer(0.2);
     isZeroed = false;
-   
     zeroWheelsCommand = new ZeroWheelsCommand(this);
+
+
   }
 
   public SwerveModule(Constants.SwerveModuleConfig moduleConfig) {
     this(moduleConfig.getDriveID(), moduleConfig.getSpinID(), moduleConfig.getEncoderID(),
         moduleConfig.getAbosoluteEncoderOffset(),moduleConfig.getRelativeEncoderOffset(), moduleConfig.getReedSwitchID());
     this.setName(moduleConfig.name());
-    }
+  }
 
   @Override
   public void periodic() {
