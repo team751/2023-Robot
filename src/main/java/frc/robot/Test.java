@@ -1,6 +1,6 @@
 package frc.robot;
 
-import frc.robot.commands.Autonomous;
+import frc.robot.commands.testcommands.Autonomous;
 
 public class Test {
     public static void main(String[] args) {
