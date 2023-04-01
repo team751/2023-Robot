@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.gyro.*;
+import frc.robot.subsystems.thebelt.TheBelt;
 import frc.robot.subsystems.wheelyarm.WheelyArm;
 import frc.robot.subsystems.camera.Limelight;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
@@ -38,13 +39,12 @@ public class RobotContainer {
   private final SwerveModule backLeftModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_LEFT);
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
-  //private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);
+  private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);
   private final WheelyArm wheelyArm = new WheelyArm(6,7);
 
   // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
   private final AHRS navX2 = new AHRS(I2C.Port.kMXP,(byte)50);
-  private final NavX2CompFilter navX2CompFilter = new NavX2CompFilter();
   private final SwerveDrive swerve = new SwerveDrive(
       frontLeftModule, 
       frontRightModule, 
@@ -53,8 +53,8 @@ public class RobotContainer {
       navX2);
   private final AutoLevel autoLevel = new AutoLevel(navX2, swerve);
   private final Drive drive = new Drive(swerve, limelight, navX2);
-  //private final TheBeltCommand beltCommand = new TheBeltCommand(theBelt);
-  //private final TheBeltTwoCommand beltBackwards = new TheBeltTwoCommand(theBelt);
+  private final TheBeltCommand beltCommand = new TheBeltCommand(theBelt);
+  private final TheBeltTwoCommand beltBackwards = new TheBeltTwoCommand(theBelt);
   private final WheelyArmCommand wheelyArmCommand = new WheelyArmCommand(wheelyArm);
 
   private final AutonExecutor autonExecutor = new AutonExecutor(swerve);
@@ -81,9 +81,9 @@ public class RobotContainer {
   private void configureButtonBindings() {
     Constants.driverController.a().whileTrue(autoLevel.unless(() -> swerve.isZeroing()));
     Constants.driverController.b().onTrue(Commands.runOnce(swerve::zeroModules).unless(autoLevel::isScheduled));
-    //Constants.driverController.x().whileTrue(beltCommand);
+    Constants.driverController.x().whileTrue(beltCommand);
     Constants.driverController.y().whileTrue(wheelyArmCommand);
-    //Constants.driverController.rightTrigger().toggleOnTrue(beltBackwards);
+    Constants.driverController.rightTrigger().toggleOnTrue(beltBackwards);
     Constants.driverController.start().onTrue(Commands.runOnce(() -> {navX2.zeroYaw(); System.out.println("zero");}));
   }
 
