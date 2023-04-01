@@ -1,20 +1,23 @@
 package frc.robot.subsystems.drivetrain;
 
 import frc.robot.Constants;
-import frc.robot.subsystems.drivetrain.SwerveModule;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class ZeroWheelsCommand extends CommandBase {
+public class ZeroWheelsBasic extends CommandBase {
   private final SwerveModule module;
+  private final Debouncer reedSwitchDebouncer;
   private double startTime;
   /**
    * Creates a new zeroWheelsCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ZeroWheelsCommand(SwerveModule subsystem) {
+  public ZeroWheelsBasic(SwerveModule subsystem) {
     this.module = subsystem;
+    // Should help remove false positives, and get the zeroed spot closer to centered
+    this.reedSwitchDebouncer = new Debouncer(0.05);
+    this.startTime = System.currentTimeMillis();
     
     addRequirements(subsystem);
   }
@@ -23,7 +26,6 @@ public class ZeroWheelsCommand extends CommandBase {
   @Override
   public void initialize() {
     this.module.stop();
-    this.startTime = System.currentTimeMillis();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -39,19 +41,19 @@ public class ZeroWheelsCommand extends CommandBase {
   public void end(boolean interrupted) {
     if(interrupted) return;
     module.setSpinSpeed(0);
-    module.spinEncoder.setPosition(-module.RELATIVE_ENCODER_OFFSET);
-    if (!module.reedSwitch.get()) {
-        module.driveMotor.setInverted(true);
-    } else {
-        module.driveMotor.setInverted(false);
-    }
+    // not sure if this works yet, but it *should* account for 
+    // the difference between the actual position of the wheel and it's theoretical position
+    double a = module.ABSOLUTE_ENCODER_OFFSET - module.absoluteEncoder.getAbsolutePositionRadians();
+    module.spinEncoder.setPosition(-module.RELATIVE_ENCODER_OFFSET + a/2);
+    module.driveMotor.setInverted(true);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double distanceFromZero = Math.abs(module.absoluteEncoder.getAbsolutePositionRadians() - module.ABSOLUTE_ENCODER_OFFSET);
-    return module.zeroModuleDebouncer.calculate(distanceFromZero < 0.07) || System.currentTimeMillis() - startTime > 5000;
+    // timeout of 5 seconds
+    if(System.currentTimeMillis() - startTime > 5000) return true;
+    return reedSwitchDebouncer.calculate(module.reedSwitch.get());
   }
 }
 
