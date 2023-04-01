@@ -35,6 +35,7 @@ public class SwerveModule extends SubsystemBase {
   public ReedSwitch reedSwitch;
   public Debouncer zeroModuleDebouncer;
   public ZeroWheelsCommand zeroWheelsCommand;
+  public ZeroWheelsBasic zeroWheelsBasicCommand;
   public boolean isZeroed;
 
   /** Creates a new SwerveDriveSubsystem. */
@@ -60,6 +61,7 @@ public class SwerveModule extends SubsystemBase {
     zeroModuleDebouncer = new Debouncer(0.2);
     isZeroed = false;
     zeroWheelsCommand = new ZeroWheelsCommand(this);
+    zeroWheelsBasicCommand = new ZeroWheelsBasic(this);
 
 
   }
@@ -137,8 +139,12 @@ public class SwerveModule extends SubsystemBase {
     return zeroWheelsCommand;
   }
 
+  public ZeroWheelsBasic getZeroBasicCommand(){
+    return zeroWheelsBasicCommand;
+  }
+
   public boolean isZeroing(){
-    return zeroWheelsCommand.isScheduled();
+    return zeroWheelsCommand.isScheduled() || zeroWheelsBasicCommand.isScheduled();
   }
 
   public void debugPutValues() {

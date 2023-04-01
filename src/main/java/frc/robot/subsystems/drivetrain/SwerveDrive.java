@@ -133,6 +133,14 @@ public class SwerveDrive extends SubsystemBase {
         backRight.getZeroCommand().schedule();
     }
 
+    public void zeroBasic(){
+        SmartDashboard.putString("Current Mode", "Zeroing");
+        frontLeft.getZeroBasicCommand().schedule();
+        frontRight.getZeroBasicCommand().schedule();
+        backLeft.getZeroBasicCommand().schedule();
+        backRight.getZeroBasicCommand().schedule();
+    }
+
     public boolean isZeroing(){
         return frontLeft.isZeroing() || frontRight.isZeroing() || backLeft.isZeroing() || backRight.isZeroing();
     }
