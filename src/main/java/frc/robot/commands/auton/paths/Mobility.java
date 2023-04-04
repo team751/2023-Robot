@@ -16,10 +16,7 @@ public class Mobility extends SequentialCommandGroup{
         addRequirements(swerveDrive);
 
         addCommands(
-            // run belt .5sec
-            new DriveDistanceForward(swerveDrive, navX2, 10, 1)
-            // drive backwards -5
-            // auto level
+            new DriveDistanceForward(swerveDrive, navX2, 8, 1)
         );
     }
 
