@@ -17,7 +17,6 @@ public class ZeroWheelsBasic extends CommandBase {
     this.module = subsystem;
     // Should help remove false positives, and get the zeroed spot closer to centered
     this.reedSwitchDebouncer = new Debouncer(0.05);
-    this.startTime = System.currentTimeMillis();
     
     addRequirements(subsystem);
   }
@@ -26,14 +25,14 @@ public class ZeroWheelsBasic extends CommandBase {
   @Override
   public void initialize() {
     this.module.stop();
+    this.startTime = System.currentTimeMillis();
+    System.out.println("good");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double motorSpeed = module.zeroingPidController.calculate(module.absoluteEncoder.getAbsolutePositionRadians(), module.ABSOLUTE_ENCODER_OFFSET);
-    double normalizedMotorSpinSpeed = (motorSpeed / Constants.spinMotorMaxSpeedMetersPerSecond) * Constants.gearRatioSpin;
-    module.setSpinSpeed(normalizedMotorSpinSpeed);
+    module.setSpinSpeed(0.2);
   }
 
   // Called once the command ends or is interrupted.

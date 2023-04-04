@@ -40,10 +40,12 @@ public class RobotContainer {
   private final SwerveModule backRightModule = new SwerveModule(Constants.SwerveModuleConfig.BACK_RIGHT);
   private final SwerveModule frontRightModule = new SwerveModule(Constants.SwerveModuleConfig.FRONT_RIGHT);
   private final TheBelt theBelt = new TheBelt(Constants.beltMotorPort,Constants.beltFanPort1,Constants.beltFanPort2);
-  private final WheelyArm wheelyArm = new WheelyArm(6,7);
+  private final WheelyArm wheelyArm = new WheelyArm(Constants.wheelyArmUpperMotorPort,Constants.wheelyArmLowerMotorPort);
 
   // PRODUCTION COMMANDS
   private final Limelight limelight = new Limelight();
+  // Set up navX with a refresh rate of 50hz, using the I2C interface
+  // This fixes issues with the navX2 disconnecting and integrating poorly with the roborio
   private final AHRS navX2 = new AHRS(I2C.Port.kMXP,(byte)50);
   private final SwerveDrive swerve = new SwerveDrive(
       frontLeftModule, 
@@ -57,7 +59,7 @@ public class RobotContainer {
   private final TheBeltTwoCommand beltBackwards = new TheBeltTwoCommand(theBelt);
   private final WheelyArmCommand wheelyArmCommand = new WheelyArmCommand(wheelyArm);
 
-  private final AutonExecutor autonExecutor = new AutonExecutor(swerve);
+  private final AutonExecutor autonExecutor = new AutonExecutor(swerve,navX2);
   //TESTING COMMANDS
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -66,8 +68,6 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     navX2.enableLogging(true);
-    SmartDashboard.putBoolean("Mobility", true);
-    SmartDashboard.putBoolean("Engage", false);
   }
 
   /**
@@ -85,7 +85,7 @@ public class RobotContainer {
     Constants.driverController.x().whileTrue(beltCommand);
     Constants.driverController.y().whileTrue(wheelyArmCommand);
     Constants.driverController.rightTrigger().toggleOnTrue(beltBackwards);
-    Constants.driverController.start().onTrue(Commands.runOnce(() -> {navX2.zeroYaw(); System.out.println("zeroed yaw");}));
+    Constants.driverController.start().onTrue(Commands.runOnce(navX2::zeroYaw));
     Constants.driverController.leftTrigger().onTrue(Commands.runOnce(swerve::zeroBasic).unless(autoLevel::isScheduled));
   }
 

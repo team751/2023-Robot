@@ -20,7 +20,8 @@ public class AutoLevel extends CommandBase{
         this.swerveDrive = swerveDrive;
         addRequirements(swerveDrive);
         this.debouncer = new Debouncer(3);
-        levelXPIDController = new PIDController(0.6, 0, 0);
+        // should give a much smoother slowdown? I hope?
+        levelXPIDController = new PIDController(0.2, 0, 0);
     }
     
     @Override 
@@ -36,7 +37,8 @@ public class AutoLevel extends CommandBase{
         // Caps the speed at 0.75 m/s
         if(Math.abs(ySpeed) > 0.75) ySpeed = 0.75 * Math.signum(ySpeed);
         //ySpeed = levelXPIDController.calculate(states[1], 0);
-        if(Math.abs(pitch) < 5) ySpeed = 0;
+        //TODO: tune this value using the actual charge station
+        if(Math.abs(pitch) < 4) ySpeed = 0;
         swerveDrive.drive(0, -ySpeed, 0,true);
         //finished = debouncer.calculate(states[0] < 3);
         SmartDashboard.putNumber("Speed For Level", ySpeed*-1);
@@ -45,7 +47,6 @@ public class AutoLevel extends CommandBase{
     @Override
     public boolean isFinished(){
         // Pitch in degrees
-        // TODO: Tune this threshold value
         return debouncer.calculate(Math.abs(navX2.getPitch()) < 10);
     }
 
