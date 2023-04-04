@@ -17,7 +17,7 @@ public class Engage extends SequentialCommandGroup{
         addRequirements(swerveDrive);
 
         addCommands(
-            new DriveDistanceForward(swerveDrive, navX2, 10, 1),
+            new DriveDistanceForward(swerveDrive, navX2, 3, 1),
             new AutoLevel(navX2, swerveDrive)
         );
     }
