@@ -20,10 +20,10 @@ public class ReedSwitch extends SubsystemBase {
 
     public boolean get() {
         // negate since default is true
-        return reedSwitch.get();
+        return !reedSwitch.get();
     }
 
     public void debugPutValues() {
-        SmartDashboard.putBoolean(this.getName() + " Reed Switch", this.get());
+        SmartDashboard.putBoolean(this.getName() + " Reed Switch", !this.get());
     }
 }

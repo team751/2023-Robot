@@ -36,6 +36,7 @@ public class SwerveModule extends SubsystemBase {
   public Debouncer zeroModuleDebouncer;
   public ZeroWheelsCommand zeroWheelsCommand;
   public ZeroWheelsBasic zeroWheelsBasicCommand;
+  public ZeroWheelsWithinPi zeroWheelsWithinPiCommand;
   public boolean isZeroed;
 
   /** Creates a new SwerveDriveSubsystem. */
@@ -62,8 +63,7 @@ public class SwerveModule extends SubsystemBase {
     isZeroed = false;
     zeroWheelsCommand = new ZeroWheelsCommand(this);
     zeroWheelsBasicCommand = new ZeroWheelsBasic(this);
-
-
+    zeroWheelsWithinPiCommand = new ZeroWheelsWithinPi(this);
   }
 
   public SwerveModule(Constants.SwerveModuleConfig moduleConfig) {
@@ -141,6 +141,10 @@ public class SwerveModule extends SubsystemBase {
 
   public ZeroWheelsBasic getZeroBasicCommand(){
     return zeroWheelsBasicCommand;
+  }
+
+  public ZeroWheelsWithinPi getZeroWheelsWithinPi(){
+    return zeroWheelsWithinPiCommand;
   }
 
   public boolean isZeroing(){

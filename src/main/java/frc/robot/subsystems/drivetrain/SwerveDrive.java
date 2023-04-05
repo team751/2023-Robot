@@ -141,6 +141,13 @@ public class SwerveDrive extends SubsystemBase {
         backRight.getZeroBasicCommand().schedule();
     }
 
+    public void zeroWithinPi(){
+        frontLeft.getZeroWheelsWithinPi().schedule();
+        frontRight.getZeroWheelsWithinPi().schedule();
+        backLeft.getZeroWheelsWithinPi().schedule();
+        backRight.getZeroWheelsWithinPi().schedule();
+    }
+
     public boolean isZeroing(){
         return frontLeft.isZeroing() || frontRight.isZeroing() || backLeft.isZeroing() || backRight.isZeroing();
     }

@@ -43,16 +43,18 @@ public class ZeroWheelsBasic extends CommandBase {
     // not sure if this works yet, but it *should* account for 
     // the difference between the actual position of the wheel and it's theoretical position
     double a = module.ABSOLUTE_ENCODER_OFFSET - module.absoluteEncoder.getAbsolutePositionRadians();
-    module.spinEncoder.setPosition(-module.RELATIVE_ENCODER_OFFSET + a/2);
-    module.driveMotor.setInverted(true);
+    module.spinEncoder.setPosition(-module.RELATIVE_ENCODER_OFFSET -a/2);
+    module.driveMotor.setInverted(false);
+    module.spinMotor.set(0);
+    System.out.println("done");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     // timeout of 5 seconds
-    if(System.currentTimeMillis() - startTime > 5000) return true;
-    return reedSwitchDebouncer.calculate(module.reedSwitch.get());
+    if(System.currentTimeMillis() - this.startTime > 5000) return true;
+    return module.reedSwitch.get();
   }
 }
 

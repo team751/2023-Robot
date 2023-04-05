@@ -87,6 +87,7 @@ public class RobotContainer {
     Constants.driverController.rightTrigger().toggleOnTrue(beltBackwards);
     Constants.driverController.start().onTrue(Commands.runOnce(navX2::zeroYaw));
     Constants.driverController.leftTrigger().onTrue(Commands.runOnce(swerve::zeroBasic).unless(autoLevel::isScheduled));
+    Constants.driverController.leftBumper().onTrue(Commands.runOnce(swerve::zeroWithinPi));
   }
 
   /**

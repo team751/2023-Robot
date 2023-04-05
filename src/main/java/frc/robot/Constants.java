@@ -152,7 +152,7 @@ public final class Constants {
     ========
 */
     public static final int wheelyArmUpperMotorPort = 6;
-    public static final int wheelyArmLowerMotorPort = 5;
+    public static final int wheelyArmLowerMotorPort = 7;
     
 /* 
     ========
